@@ -1,5 +1,5 @@
 #include <SWI-CPP.h>
-#include <iostream.h>
+#include <iostream>
 
 PREDICATE(hello, 1)
 { 
