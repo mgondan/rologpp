@@ -1,12 +1,17 @@
-#include <SWI-Prolog.h>
+#include <SWI-CPP.h>
 #include <string.h>
 
 static functor_t FUNCTOR_equal2;
 #define MAXNAME 512
 
-static foreign_t
-pl_environ(term_t list)
-{ extern char **environ;
+static foreign_t pl_hello(PlTerm In, PlTerm Out)
+{
+  return Out = PlCompound("hello", In) ; ;
+}
+
+static foreign_t pl_environ(term_t list)
+{ 
+  extern char **environ;
   term_t tail = PL_copy_term_ref(list);
   term_t head = PL_new_term_ref();
   char **ep;
@@ -36,4 +41,5 @@ install_t install_rologpp()
 { 
   FUNCTOR_equal2 = PL_new_functor(PL_new_atom("="), 2);
   PL_register_foreign("environ", 1, pl_environ, 0);
+  PL_register_foreign("hello", 2, pl_hello, 0);
 }
