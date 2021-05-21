@@ -1,8 +1,13 @@
 all:
-  make -C all
+	$(CC) $(CFLAGS) hello.cpp
+	$(LD) $(LDSOFLAGS) -o rologpp.$(SOEXT) hello.o
   
 check:
-  make -C check
+
+distclean:
+	rm *.o *.$(SOEXT) lib/$(SWIARCH)/*.$(SOEXT)
 
 install:
-  make -C install
+	mkdir lib
+	mkdir lib/$(SWIARCH)
+	cp rologpp.$(SOEXT) lib/$(SWIARCH)
