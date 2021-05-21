@@ -1,5 +1,8 @@
-PREDICATE(hello, 1)
-{ cout << "Hello " << (char *)A1 << endl;
+#include <SWI-CPP.h>
+#include <iostream>
 
-  return TRUE;
+PREDICATE(hello, 1)
+{ 
+  std::cout << "Hello " << (char *)A1 << std::endl ;
+  return true ;
 }
