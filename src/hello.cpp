@@ -7,4 +7,7 @@ static foreign_t pl_hello(PlTerm a1)
   return TRUE;
 }
 
-PlRegister x_hello_1(NULL, "hello", 1, &pl_hello) ;
+install_t install_rologpp()
+{
+  PL_register_foreign("hallo", 1, pl_hello, 0);
+}
