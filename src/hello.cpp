@@ -1,13 +1,13 @@
 #include <SWI-CPP.h>
 #include <iostream>
 
-PREDICATE(hello, 1)
+static foreign_t pl_hello(term_t A1)
 { 
-  std::cout << "Hello " << (char *)A1 << std::endl ;
+  std::cout << "Hello " << (char *) A1 << std::endl ;
   return true ;
 }
 
 install_t install_rologpp()
 {
-  PL_register_foreign("hello", 1, pl_hello__1, 0) ;
+  PL_register_foreign("hello", 1, pl_hello, 0) ;
 }
