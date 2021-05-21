@@ -12,7 +12,7 @@ OBJ=hello.o
 
 $(SOBJ): $(OBJ)
 	mkdir -p $(PACKSODIR)
-	$(CXX) $(LDSOFLAGS) -o $@ $(OBJ) $(SWISOLIB)
+	$(CC) $(LDSOFLAGS) -o $@ $(OBJ) $(SWISOLIB)
 
 check::
 
