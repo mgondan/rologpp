@@ -1,5 +1,5 @@
-#include <SWI-CPP.h>
-#include <iostream>
+#include <SWI-Prolog.h>
+// #include <iostream>
 #include <string.h>
 
 static functor_t FUNCTOR_equal2;
