@@ -3,8 +3,8 @@
 
 static foreign_t pl_hello(PlTerm a1)
 {
-  std::cout << "Hello " << (char *)A1 << std::endl;
+  std::cout << "Hello " << (char*) a1 << std::endl;
   return TRUE;
 }
 
-PlRegister x_hello_1(NULL, "hello", 1, pl_hello) ;
+PlRegister x_hello_1(NULL, "hello", 1, &pl_hello) ;
