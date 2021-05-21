@@ -41,5 +41,7 @@ install_t install_rologpp()
 { 
   FUNCTOR_equal2 = PL_new_functor(PL_new_atom("="), 2);
   PL_register_foreign("environ", 1, pl_environ, 0);
-  PL_register_foreign("hello", 2, pl_hello, 0);
+  // PL_register_foreign("hello", 2, pl_hello, 0);
+  PlRegister x_hello_1(NULL, "hello", 2, pl_hello);
 }
+
