@@ -3,7 +3,7 @@
 
 PREDICATE(hello, 1)
 { 
-  cout << "Hello " << (char *)A1 << endl;
+  std::cout << "Hello " << (char *)A1 << std::endl;
   return TRUE;
 }
 
