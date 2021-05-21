@@ -10,6 +10,8 @@
     '<-'/1
   ]).
 
+:- use_foreign_library(foreign(rologpp)).
+
 :- op(800, xfx, <-).
 :- op(800, fx, <-).
 
