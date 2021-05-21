@@ -3,6 +3,7 @@
     r_init/2,
     r_done/0,
     r_call/1,
+    hello/1,
     op(800, xfx, <-),
     op(800, fx, <-),
     '<-'/2,
@@ -25,3 +26,4 @@ r_call(Expr) :-
     
 <-(Var, Expr) :-
     format('~w <- ~w~n', [Var, Expr]).
+
