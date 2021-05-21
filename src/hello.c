@@ -32,9 +32,8 @@ pl_environ(term_t list)
   return PL_unify_nil(tail);
 }
 
-install_t
-install_environ()
-{ FUNCTOR_equal2 = PL_new_functor(PL_new_atom("="), 2);
-
+install_t install_rologpp()
+{ 
+  FUNCTOR_equal2 = PL_new_functor(PL_new_atom("="), 2);
   PL_register_foreign("environ", 1, pl_environ, 0);
 }
