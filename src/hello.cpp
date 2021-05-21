@@ -9,5 +9,5 @@ PREDICATE(hello, 1)
 
 install_t install_rologpp()
 {
-  PL_register_foreign("hello", 1, pl_hello, 0) ;
+  PL_register_foreign("hello", 1, pl_hello__1, 0) ;
 }
