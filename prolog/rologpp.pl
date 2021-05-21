@@ -15,7 +15,7 @@ r_init(_Argc, _Argv) :-
     
 r_done().
 
-r_call(_Expr) :-
+r_call(Expr) :-
     writeln(Expr).
     
 <-(Call) :-
