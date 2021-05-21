@@ -1,13 +1,22 @@
-all:
-	$(CC) $(CFLAGS) hello.cpp
-	$(LD) $(LDSOFLAGS) -o rologpp.$(SOEXT) hello.o
-  
-check:
+SOBJ=$(PACKSODIR)/rologpp.$(SOEXT)
 
-distclean:
-	rm *.o *.$(SOEXT) lib/$(SWIARCH)/*.$(SOEXT)
+all: $(SOBJ)
 
-install:
-	mkdir lib
-	mkdir lib/$(SWIARCH)
-	cp rologpp.$(SOEXT) lib/$(SWIARCH)
+OBJ=hello.o
+
+%.o: src/%.cpp
+	$(CXX) $(CFLAGS) -c src/$*.cpp
+
+$(SOBJ): $(OBJ)
+	mkdir -p $(PACKSODIR)
+	$(CXX) $(LDSOFLAGS) -o $@ $(OBJ) $(SWISOLIB)
+
+check::
+
+install::
+
+clean:
+	rm -f $(OBJ)
+
+distclean: clean
+	rm -f $(SOBJ)
