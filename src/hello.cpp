@@ -9,6 +9,6 @@ PREDICATE(hello, 1)
 
 install_t install_rologpp()
 { 
-  PlRegister x_hello_1(NULL, "hello", 2, pl_hello__1);
+  PlRegister x_hello_1(NULL, "hello", 1, pl_hello__1);
 }
 
