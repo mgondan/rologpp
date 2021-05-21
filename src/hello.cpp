@@ -5,7 +5,7 @@
 static functor_t FUNCTOR_equal2;
 #define MAXNAME 512
 
-static pl_function_t pl_hello(term_t list)
+static foreign_t pl_hello(term_t list)
 { extern char **environ;
   term_t tail = PL_copy_term_ref(list);
   term_t head = PL_new_term_ref();
@@ -35,5 +35,5 @@ static pl_function_t pl_hello(term_t list)
 install_t install_rologpp()
 { 
   FUNCTOR_equal2 = PL_new_functor(PL_new_atom("="), 2);
-  PL_register_foreign("hello", 1, pl_hello, 0);
+  PL_register_foreign("hello", 1, (pl_function_t) pl_hello, 0);
 }
