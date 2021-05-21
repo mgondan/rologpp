@@ -1,14 +1,36 @@
 #include <SWI-CPP.h>
 #include <iostream>
-static foreign_t pl_hello(term_t a1)
-{
-  PlTerm A1(a1) ;
-  
-  std::cout << "Hello " << (char*) A1 << std::endl;
-  return TRUE;
+#include <string.h>
+
+static foreign_t pl_hello(term_t list)
+{ extern char **environ;
+  term_t tail = PL_copy_term_ref(list);
+  term_t head = PL_new_term_ref();
+  char **ep;
+
+  for(ep=environ; *ep; ep++)
+  { char *e = *ep;
+    char *en;
+
+    if ( (en=strchr(e, '=')) && en-e < MAXNAME )
+    { char name[MAXNAME];
+
+      strncpy(name, e, en-e);
+      name[en-e] = 0;
+
+      if ( !PL_unify_list(tail, head, tail) ||
+	   !PL_unify_term(head, PL_FUNCTOR, FUNCTOR_equal2,
+			    PL_MBCHARS, name,
+			    PL_MBCHARS, en+1) )
+	return FALSE;
+    }
+  }
+
+  return PL_unify_nil(tail);
 }
 
 install_t install_rologpp()
-{
-  PL_register_foreign("hallo", 1, pl_hello, 0);
+{ 
+  FUNCTOR_equal2 = PL_new_functor(PL_new_atom("="), 2);
+  PL_register_foreign("hello", 1, pl_hello, 0);
 }
