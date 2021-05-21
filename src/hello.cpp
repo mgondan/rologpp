@@ -1,9 +1,10 @@
 #include <SWI-CPP.h>
 #include <iostream>
-
-static foreign_t pl_hello(PlTerm a1)
+static foreign_t pl_hello(term_t a1)
 {
-  std::cout << "Hello " << (char*) a1 << std::endl;
+  PlTerm A1(a1) ;
+  
+  std::cout << "Hello " << (char*) A1 << std::endl;
   return TRUE;
 }
 
