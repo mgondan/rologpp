@@ -2,6 +2,9 @@
 #include <iostream>
 #include <string.h>
 
+static functor_t FUNCTOR_equal2;
+#define MAXNAME 512
+
 static foreign_t pl_hello(term_t list)
 { extern char **environ;
   term_t tail = PL_copy_term_ref(list);
