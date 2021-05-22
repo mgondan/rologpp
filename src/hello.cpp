@@ -1,7 +1,8 @@
 #include "SWI-cpp.h"
 
-#include <Rcpp.h>
+#include "Rcpp.h"
 using namespace Rcpp;
+#include "RInside.h"
 
 SEXP pl2r(PlTerm arg) ;
 
@@ -195,4 +196,15 @@ PREDICATE(r_eval, 2)
   Language Expr = pl2r(A1) ;
   return A2 = r2pl(Expr) ;
   // return A2 = r2pl(Expr.eval()) ;
+}
+
+static RInside* R = NULL ;
+PREDICATE(r_init, 1)
+{
+  R = new RInside(A1) ;
+}
+
+PREDICATE(r_done, 0)
+{
+  delete R ;
 }
