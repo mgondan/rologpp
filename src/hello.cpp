@@ -1,10 +1,7 @@
 #include "SWI-cpp.h"
-#include <iostream>
 #include <math.h>
-using namespace std;
 
-PREDICATE(hello, 1)
+PREDICATE(add, 3)
 { 
-  cout << "Hello " << (char*) A1 << endl;
-  return TRUE;
+  return A3 = (long)A1 + (long)A2;
 }
