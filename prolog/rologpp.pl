@@ -1,6 +1,7 @@
 :- module(rologpp, 
   [
-    r_init/2,
+    r_init/0,
+    r_init/1,
     r_done/0,
     r_call/1,
     r_eval/2,
@@ -15,8 +16,9 @@
 :- op(800, xfx, <-).
 :- op(800, fx, <-).
 
-r_init(_Argc, _Argv) :-
-    writeln(r_init).
+r_init :-
+    current_prolog_flag(argv, [Argv0 | _])
+    r_init(Argv0).
     
 r_done().
 
