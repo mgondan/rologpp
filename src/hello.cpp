@@ -202,7 +202,7 @@ static RInside* r_instance = NULL ;
 
 PREDICATE(r_init, 1)
 {
-  char* argv0 = (char*) A1
+  char* argv0 = (char*) A1 ;
   r_instance = new RInside(1, &argv0) ;
   return TRUE ;
 }
