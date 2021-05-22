@@ -1,14 +1,14 @@
 SOBJ=$(PACKSODIR)/rologpp.$(SOEXT)
+INCLUDES=-I"C:/Program Files/R/R-4.1.0/include" -I"C:\Users\matth\Documents\R\win-library\4.1\Rcpp\include"
+LIBDIR=-L"C:/Program Files/R/R-4.1.0/bin/x64"
+LIBS=-lR
 
 all: $(SOBJ)
 
 OBJ=hello.o
 
-%.o: src/%.c
-	swipl-ld -shared -o rologpp src/$*.c
-
 %.o: src/%.cpp
-	swipl-ld -shared -o rologpp src/$*.cpp
+	swipl-ld $(INCLUDES) -shared -o rologpp src/$*.cpp $(LIBDIR) $(LIBS)
 
 $(SOBJ): $(OBJ)
 	mkdir -p $(PACKSODIR)
