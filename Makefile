@@ -16,7 +16,7 @@ $(SOBJ): $(OBJ)
 check::
 
 install:
-	cp rologpp.$(SOEXT) $(PACKSODIR)
+	mv rologpp.$(SOEXT) $(PACKSODIR)
 
 clean:
 	rm -f $(OBJ)
