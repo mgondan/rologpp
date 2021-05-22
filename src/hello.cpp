@@ -198,10 +198,11 @@ PREDICATE(r_eval, 2)
   // return A2 = r2pl(Expr.eval()) ;
 }
 
-static RInside* R = NULL ;
+static RInside* RInstance = NULL ;
 PREDICATE(r_init, 1)
 {
-  R = new RInside(A1) ;
+  char* argv0 = (char*) A1
+  RInstance = new RInside(1, &argv0) ;
 }
 
 PREDICATE(r_done, 0)
