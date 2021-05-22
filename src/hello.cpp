@@ -204,9 +204,11 @@ PREDICATE(r_init, 1)
 {
   char* argv0 = (char*) A1
   r_instance = new RInside(1, &argv0) ;
+  return TRUE ;
 }
 
 PREDICATE(r_done, 0)
 {
   delete r_instance ;
+  return TRUE ;
 }
