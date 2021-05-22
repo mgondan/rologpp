@@ -5,14 +5,13 @@ all: $(SOBJ)
 OBJ=hello.o
 
 %.o: src/%.c
-	$(CC) $(CFLAGS) -c src/$*.c
+	swipl-ld -o $(SOBJ) src/$*.c
 
 %.o: src/%.cpp
-	$(CXX) $(CFLAGS) -c src/$*.cpp
+	swipl-ld -o $(SOBJ) src/$*.c
 
 $(SOBJ): $(OBJ)
 	mkdir -p $(PACKSODIR)
-	$(CC) $(LDSOFLAGS) -o $@ $(OBJ) $(SWISOLIB)
 
 check::
 
