@@ -3,11 +3,6 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-PREDICATE(add, 3)
-{ 
-  return A3 = (long)A1 + (long)A2;
-}
-
 SEXP pl2r(PlTerm arg) ;
 
 SEXP pl2r_null()
