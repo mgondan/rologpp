@@ -17,7 +17,7 @@
 :- op(800, fx, <-).
 
 r_init :-
-    current_prolog_flag(argv, [Argv0 | _])
+    current_prolog_flag(argv, [Argv0 | _]),
     r_init(Argv0).
     
 r_call(Expr) :-
