@@ -197,6 +197,6 @@ PlTerm r2pl(SEXP arg)
 
 PREDICATE(r_eval, 2)
 {
-  SEXP Expr = pl2r(A1) ;
+  Language Expr = r_cast<Language>(pl2r(A1)) ;
   return A2 = r2pl(Expr.eval()) ;
 }
