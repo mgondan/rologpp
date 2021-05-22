@@ -20,8 +20,6 @@ r_init :-
     current_prolog_flag(argv, [Argv0 | _])
     r_init(Argv0).
     
-r_done().
-
 r_call(Expr) :-
     writeln(Expr).
     
