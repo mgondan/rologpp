@@ -5,10 +5,10 @@ all: $(SOBJ)
 OBJ=hello.o
 
 %.o: src/%.c
-	swipl-ld -o $(SOBJ) src/$*.c
+	swipl-ld -shared -o $* src/$*.c
 
 %.o: src/%.cpp
-	swipl-ld -o $(SOBJ) src/$*.c
+	swipl-ld -shared -o $* src/$*.c
 
 $(SOBJ): $(OBJ)
 	mkdir -p $(PACKSODIR)
