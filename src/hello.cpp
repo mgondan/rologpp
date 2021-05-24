@@ -189,7 +189,7 @@ PlTerm r2pl(RObject arg)
   if(arg.sexp_type() == VECSXP)
     return r2pl_list(as<List>(arg)) ;
   
-  if(arg.isNULL())
+  if(arg.sexp_type() == NILSXP)
     return r2pl_null() ;
   
   return r2pl_na() ;
