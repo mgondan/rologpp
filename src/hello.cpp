@@ -53,7 +53,6 @@ List pl2r_list(PlTerm arg)
 Language pl2r_compound(PlTerm term)
 {
   Language r(term.name()) ;
-  
   for(unsigned int i=1 ; i<=term.arity() ; i++)
   {
     /*
@@ -76,7 +75,7 @@ SEXP pl2r(PlTerm arg)
 {
   if(PL_term_type(arg) == PL_NIL)
     return pl2r_null() ;
-  
+
   if(PL_is_integer(arg))
     return pl2r_integer(arg) ;
   
@@ -94,7 +93,7 @@ SEXP pl2r(PlTerm arg)
   
   if(PL_is_compound(arg))
     return pl2r_compound(arg) ;
-  
+
   Rcout << "pl2r: Cannot convert " << (char*) arg << std::endl ;
   return R_NilValue ;
 }
@@ -214,7 +213,7 @@ PREDICATE(r_done, 0)
   return TRUE ;
 }
 
-PREDICATE(r_eval, 2)
+PREDICATE(eval_, 2)
 {
   Language Expr = pl2r(A1) ;
   RObject Res = Expr.eval() ;
