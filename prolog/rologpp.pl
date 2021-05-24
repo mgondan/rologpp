@@ -22,10 +22,26 @@ r_init :-
     
 r_call(Expr) :-
     writeln(Expr).
+
+r_eval(X, Y) :-
+    pl2r_(X, R),
+    eval_(R, Y).
+
+pl2r_('::'(Namespace, Compound), X)
+ => term_string(Namespace, Ns),
+    compound_name_arguments(Compound, Name, Arguments),
+    X = 'do.call'('$'(getNamespace(Ns), Name), Arguments).
+
+pl2r(A, X),
+    compound(A)
+ => mapargs(pl2r, A, X).
+
+pl2r(A, X)
+ => A = X.
+
     
 <-(Call) :-
     format('<- ~w~n', [Call]).
     
 <-(Var, Expr) :-
     format('~w <- ~w~n', [Var, Expr]).
-
