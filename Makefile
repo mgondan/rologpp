@@ -5,7 +5,7 @@ LIBS=-lR -llibRInside
 
 all: $(SOBJ)
 
-OBJ=hello.o
+OBJ=rologpp.o
 
 %.o: src/%.cpp
 	swipl-ld $(INCLUDES) -shared -o rologpp src/$*.cpp $(LIBDIR) $(LIBS)
