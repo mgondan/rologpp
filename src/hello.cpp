@@ -1,4 +1,5 @@
 #include "SWI-cpp.h"
+#include "iostream"
 
 #include "Rcpp.h"
 using namespace Rcpp;
@@ -98,7 +99,7 @@ SEXP pl2r(PlTerm arg)
   return R_NilValue ;
 }
 
-PlTerm r2pl(SEXP arg) ;
+PlTerm r2pl(RObject arg) ;
 
 PlTerm r2pl_real(NumericVector arg)
 {
@@ -120,7 +121,7 @@ PlTerm r2pl_integer(IntegerVector arg)
 
 PlTerm r2pl_atom(Symbol arg)
 {
-  return PlAtom(as<Symbol>(arg).c_str()) ;
+  return PlAtom(arg.c_str()) ;
 }
 
 PlTerm r2pl_string(CharacterVector arg)
@@ -162,51 +163,46 @@ PlTerm r2pl_list(List arg)
   return r ;
 }
 
-PlTerm r2pl(SEXP arg)
+PlTerm r2pl(RObject arg)
 {
-  if(TYPEOF(arg) == LANGSXP)
-    return r2pl_compound(arg) ;
+  if(is<Language>(arg))
+    return r2pl_compound(as<Language>(arg)) ;
 
-  if(TYPEOF(arg) == REALSXP)
-    return r2pl_real(arg) ;
+  if(is<NumericVector>(arg))
+    return r2pl_real(as<NumericVector>(arg)) ;
   
-  if(TYPEOF(arg) == LGLSXP)
-    return r2pl_logical(arg) ;
+  if(is<LogicalVector>(arg))
+    return r2pl_logical(as<LogicalVector>(arg)) ;
   
-  if(TYPEOF(arg) == INTSXP)
-    return r2pl_integer(arg) ;
+  if(is<IntegerVector>(arg))
+    return r2pl_integer(as<IntegerVector>(arg)) ;
   
-  if(TYPEOF(arg) == SYMSXP)
-    return r2pl_atom(arg) ;
+  if(is<Symbol>(arg))
+    return r2pl_atom(as<Symbol>(arg)) ;
 
-  if(TYPEOF(arg) == STRSXP)
-    return r2pl_string(arg) ;
+  if(is<CharacterVector>(arg))
+    return r2pl_string(as<CharacterVector>(arg)) ;
 
-  if(TYPEOF(arg) == VECSXP)
-    return r2pl_list(arg) ;
+  if(is<List>(arg))
+    return r2pl_list(as<List>(arg)) ;
   
-  if(TYPEOF(arg) == NILSXP)
+  if(arg.sexp_type() == VECSXP)
+    return r2pl_list(as<List>(arg)) ;
+  
+  if(arg.isNULL())
     return r2pl_null() ;
   
   return r2pl_na() ;
-}
-
-PREDICATE(r_eval, 2)
-{
-  Language Expr = pl2r(A1) ;
-  return A2 = r2pl(Expr) ;
-  // return A2 = r2pl(Expr.eval()) ;
 }
 
 static RInside* r_instance = NULL ;
 
 PREDICATE(r_init, 1)
 {
-  char* argv0 = (char*) A1 ;
-
   if(r_instance)
-    delete r_instance ;
-  
+    return TRUE ;
+
+  char* argv0 = (char*) A1 ;
   r_instance = new RInside(1, &argv0) ;
   return TRUE ;
 }
@@ -216,4 +212,11 @@ PREDICATE(r_done, 0)
   delete r_instance ;
   r_instance = NULL ;
   return TRUE ;
+}
+
+PREDICATE(r_eval, 2)
+{
+  Language Expr = pl2r(A1) ;
+  RObject Res = Expr.eval() ;
+  return A2 = r2pl(Res) ;
 }
