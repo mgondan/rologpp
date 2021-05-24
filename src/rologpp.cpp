@@ -1,44 +1,53 @@
 #include "SWI-cpp.h"
-#include "iostream"
 
 #include "Rcpp.h"
 using namespace Rcpp;
 #include "RInside.h"
 
-SEXP pl2r(PlTerm arg) ;
+RObject pl2r(PlTerm arg) ;
 
-SEXP pl2r_null()
+RObject pl2r_null()
 {
   return R_NilValue ;
 }
 
-DoubleVector pl2r_real(PlTerm arg)
+RObject pl2r_na()
 {
-  DoubleVector r(1) ;
+  LogicalVector r(1) ;
+  r(0) = NA_LOGICAL ;
+  return r ;
+}
+
+RObject pl2r_real(PlTerm arg)
+{
+  NumericVector r(1) ;
   r(0) = arg ;
   return r ;
 }
 
-IntegerVector pl2r_integer(PlTerm arg)
+RObject pl2r_integer(PlTerm arg)
 {
   IntegerVector r(1) ;
   r(0) = arg ;
   return r ;
 }
 
-CharacterVector pl2r_char(PlTerm arg)
+RObject pl2r_char(PlTerm arg)
 {
   CharacterVector r(1) ;
   r(0) = (char*) arg ;
   return r ;
 }
 
-Symbol pl2r_symbol(PlTerm arg)
+RObject pl2r_symbol(PlTerm arg)
 {
-  return Symbol((char*) arg) ;
+  if(arg == "NA")
+    return pl2r_na() ;
+
+  return as<RObject>(Symbol((char*) arg)) ;
 }
 
-List pl2r_list(PlTerm arg)
+RObject pl2r_list(PlTerm arg)
 {
   List r ;
   
@@ -50,7 +59,7 @@ List pl2r_list(PlTerm arg)
   return r ;
 }
 
-Language pl2r_compound(PlTerm term)
+RObject pl2r_compound(PlTerm term)
 {
   Language r(term.name()) ;
   for(unsigned int i=1 ; i<=term.arity() ; i++)
@@ -68,10 +77,10 @@ Language pl2r_compound(PlTerm term)
     r.push_back(pl2r(term[i])) ;
   }
   
-  return r ;
+  return as<RObject>(r) ;
 }
 
-SEXP pl2r(PlTerm arg)
+RObject pl2r(PlTerm arg)
 {
   if(PL_term_type(arg) == PL_NIL)
     return pl2r_null() ;
@@ -94,8 +103,8 @@ SEXP pl2r(PlTerm arg)
   if(PL_is_compound(arg))
     return pl2r_compound(arg) ;
 
-  Rcout << "pl2r: Cannot convert " << (char*) arg << std::endl ;
-  return R_NilValue ;
+  throw PlException(PlTypeError("NULL, Integer, Float, String, Atom, List, Compound", arg)) ;
+  return pl2r_null() ;
 }
 
 PlTerm r2pl(RObject arg) ;
@@ -105,8 +114,16 @@ PlTerm r2pl_real(NumericVector arg)
   return PlTerm(arg(0)) ;
 }
 
+PlTerm r2pl_na()
+{
+  return PlTerm("NA") ;
+}
+
 PlTerm r2pl_logical(LogicalVector arg)
 {
+  if(arg(0) = NA_LOGICAL)
+    return r2pl_na() ;
+
   if(arg(0))
     return PlAtom("TRUE") ;
   
@@ -115,12 +132,10 @@ PlTerm r2pl_logical(LogicalVector arg)
 
 PlTerm r2pl_integer(IntegerVector arg)
 {
-  return PlTerm((long) arg(0)) ;
-}
+  if(arg(0) = NA_INTEGER)
+    return r2pl_na() ;
 
-PlTerm r2pl_atom(Symbol arg)
-{
-  return PlAtom(arg.c_str()) ;
+  return PlTerm((long) arg(0)) ;
 }
 
 PlTerm r2pl_string(CharacterVector arg)
@@ -135,9 +150,15 @@ PlTerm r2pl_null()
   return r ;
 }
 
-PlTerm r2pl_na()
+PlTerm r2pl_atom(Symbol arg)
 {
-  return PlTerm("NA") ;
+  if(arg == "NA")
+    return r2pl_na() ;
+
+  if(arg == "NULL")
+    return r2pl_null() ;
+
+  return PlAtom(arg.c_str()) ;
 }
 
 PlTerm r2pl_compound(Language arg)
@@ -191,31 +212,51 @@ PlTerm r2pl(RObject arg)
   if(arg.sexp_type() == NILSXP)
     return r2pl_null() ;
   
+  String s = Language("class", arg).eval() ;
+  throw PlException(PlTypeError("Language, Vector, Symbol, List, NULL", PlTerm(s.get_cstring()))) ;
   return r2pl_na() ;
 }
 
-static RInside* r_instance = NULL ;
+RInside* r_instance = NULL ;
 
 PREDICATE(r_init, 1)
 {
   if(r_instance)
-    return TRUE ;
+    return true ;
 
-  char* argv0 = (char*) A1 ;
-  r_instance = new RInside(1, &argv0) ;
-  return TRUE ;
-}
-
-PREDICATE(r_done, 0)
-{
-  delete r_instance ;
-  r_instance = NULL ;
-  return TRUE ;
+  const char* const argv[] = {(const char*) A1} ;
+  r_instance = new RInside(1, argv) ;
+  return true ;
 }
 
 PREDICATE(eval_, 2)
 {
-  Language Expr = pl2r(A1) ;
-  RObject Res = Expr.eval() ;
-  return A2 = r2pl(Res) ;
+  if(!r_instance)
+    throw PlException(PlTerm("R not initialized")) ;
+
+  RObject Expr = pl2r(A1) ;
+  RObject Res = Expr ;
+  try 
+  {
+    if(is<Language>(Expr))
+      Res = as<Language>(Expr).eval() ;
+  } 
+  catch(std::exception& ex)
+  {
+    throw PlException(PlTerm(ex.what())) ;
+    return false ;
+  }
+
+  PlTerm a2 ;
+  try
+  {
+    a2 = r2pl(Res) ;
+  }
+  catch(std::exception& ex)
+  {
+    throw PlException(PlTerm(ex.what())) ;
+    return false ;
+  }
+
+  return A2 = a2 ;
 }
