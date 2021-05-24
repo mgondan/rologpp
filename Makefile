@@ -17,6 +17,14 @@ check::
 
 install:
 	mv rologpp.$(SOEXT) $(PACKSODIR)
+	cp `libgcc_s_seh-1.dll` $(PACKSODIR)
+	cp `which libstdc++-6.dll` $(PACKSODIR)
+	cp `which R.dll` $(PACKSODIR)
+	cp `which Rblas.dll` $(PACKSODIR)
+	cp `which Riconv.dll` $(PACKSODIR)
+	cp `which Rlapack.dll` $(PACKSODIR)
+	cp `which Rgraphapp.dll` $(PACKSODIR)
+	cp `which Rinside.dll` $(PACKSODIR)
 
 clean:
 	rm -f $(OBJ)
