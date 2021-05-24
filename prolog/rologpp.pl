@@ -5,6 +5,7 @@
     r_done/0,
     r_call/1,
     r_eval/2,
+    op(600, xfy, ::),
     op(800, xfx, <-),
     op(800, fx, <-),
     '<-'/2,
