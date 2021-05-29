@@ -115,7 +115,7 @@ PlTerm r2pl_real(NumericVector arg)
   for(long i=0 ; i<arg.size() ; i++)
     r[i] = arg(i) ;
   
-  return PlCompound('#', r) ;
+  return PlCompound("#", r) ;
 }
 
 PlTerm r2pl_na()
