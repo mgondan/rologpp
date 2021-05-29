@@ -111,7 +111,11 @@ PlTerm r2pl(RObject arg) ;
 
 PlTerm r2pl_real(NumericVector arg)
 {
-  return PlTerm(arg(0)) ;
+  PlTermv r(arg.size()) ;
+  for(long i=0 ; i<arg.size() ; i++)
+    r[i] = arg(i) ;
+  
+  return PlCompound('#', r) ;
 }
 
 PlTerm r2pl_na()
