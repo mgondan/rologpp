@@ -17,7 +17,7 @@ check::
 
 install:
 	mv rologpp.$(SOEXT) $(PACKSODIR)
-	cp `libgcc_s_seh-1.dll` $(PACKSODIR)
+	cp `which libgcc_s_seh-1.dll` $(PACKSODIR)
 	cp `which libstdc++-6.dll` $(PACKSODIR)
 	cp `which R.dll` $(PACKSODIR)
 	cp `which Rblas.dll` $(PACKSODIR)
