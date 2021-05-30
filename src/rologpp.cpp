@@ -125,13 +125,23 @@ PlTerm r2pl_na()
 
 PlTerm r2pl_logical(LogicalVector arg)
 {
-  if(arg(0) == NA_LOGICAL)
-    return r2pl_na() ;
+  PlTermv r(arg.size()) ;
+  for(long i=0 ; i<arg.size() ; i++)
+    switch(arg(i))
+    {
+      case 0:
+        r[i] = PlAtom("FALSE") ;
+        break ;
+      
+      case 1:    
+        r[i] = PlAtom("TRUE") ;
+        break ;
 
-  if(arg(0))
-    return PlAtom("TRUE") ;
+      default:
+        r[i] = r2pl_na() ;
+    }
   
-  return PlAtom("FALSE") ;
+  return PlCompound("&|", r) ;
 }
 
 PlTerm r2pl_integer(IntegerVector arg)
