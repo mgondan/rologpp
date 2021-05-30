@@ -176,7 +176,11 @@ PlTerm r2pl_integer(IntegerVector arg)
 
 PlTerm r2pl_string(CharacterVector arg)
 {
-  return PlString(arg(0)) ;
+  PlTermv r(arg.size()) ;
+  for(long i=0 ; i<arg.size() ; i++)
+    r[i] = PlString(arg(i)) ;
+  
+  return PlCompound("$", r) ;
 }
 
 PlTerm r2pl_null()
