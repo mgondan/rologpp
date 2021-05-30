@@ -1,7 +1,5 @@
 :- module(rologpp, 
   [
-    r_init/0,
-    r_init/1,
     r_call/1,
     r_eval/2,
     op(600, xfy, ::),
@@ -12,14 +10,15 @@
   ]).
 
 :- use_foreign_library(foreign(rologpp)).
-
-:- op(800, xfx, <-).
-:- op(800, fx, <-).
+:- initialization(r_init).
 
 r_init :-
     current_prolog_flag(os_argv, [Argv0 | _]),
     r_init(Argv0).
-    
+
+:- op(800, xfx, <-).
+:- op(800, fx, <-).
+
 r_call(Expr) :-
     writeln(Expr).
 
