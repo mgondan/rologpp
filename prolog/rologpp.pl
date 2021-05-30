@@ -2,7 +2,6 @@
   [
     r_init/0,
     r_init/1,
-    r_done/0,
     r_call/1,
     r_eval/2,
     op(600, xfy, ::),
