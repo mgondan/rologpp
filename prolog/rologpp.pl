@@ -31,6 +31,9 @@ pl2r_('::'(Namespace, Compound), X)
     compound_name_arguments(Compound, Name, Arguments),
     X = 'do.call'('$'(getNamespace(Ns), Name), Arguments).
 
+pl2r_('=<'(A, B), X)
+ => X = '<='(A, B).
+
 pl2r_(A, X),
     compound(A)
  => mapargs(pl2r_, A, X).
