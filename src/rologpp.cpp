@@ -125,7 +125,7 @@ PlTerm r2pl_na()
 
 PlTerm r2pl_logical(LogicalVector arg)
 {
-  if(arg(0) = NA_LOGICAL)
+  if(arg(0) == NA_LOGICAL)
     return r2pl_na() ;
 
   if(arg(0))
@@ -136,7 +136,7 @@ PlTerm r2pl_logical(LogicalVector arg)
 
 PlTerm r2pl_integer(IntegerVector arg)
 {
-  if(arg(0) = NA_INTEGER)
+  if(arg(0) == NA_INTEGER)
     return r2pl_na() ;
 
   return PlTerm((long) arg(0)) ;
