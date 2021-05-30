@@ -1,10 +1,13 @@
 :- module(rologpp, 
   [
+    r_init/0,
+    r_init/1,
     r_call/1,
     r_eval/2,
     op(600, xfy, ::),
     op(800, xfx, <-),
     op(800, fx, <-),
+    op(100, yf, []),
     '<-'/2,
     '<-'/1
   ]).
@@ -24,15 +27,24 @@ r_call(Expr) :-
 
 r_eval(X, Y) :-
     pl2r_(X, R),
-    eval_(R, Y).
+    r_eval_(R, Y).
 
 pl2r_('::'(Namespace, Compound), X)
  => term_string(Namespace, Ns),
     compound_name_arguments(Compound, Name, Arguments),
-    X = 'do.call'('$'(getNamespace(Ns), Name), Arguments).
+    pl2r_('do.call'($(getNamespace(Ns), Name), Arguments), X).
 
-pl2r_('=<'(A, B), X)
- => X = '<='(A, B).
+pl2r_(A =< B, X)
+ => pl2r_('<='(A, B), X).
+
+pl2r_(A[B], X)
+ => pl2r_('['(A, B), X).
+
+pl2r_(Hash, X),
+    compound(Hash),
+    compound_name_arguments(Hash, #, Args)
+ => compound_name_arguments(C, c, Args),
+    pl2r_(C, X).
 
 pl2r_(A, X),
     compound(A)
@@ -40,7 +52,6 @@ pl2r_(A, X),
 
 pl2r_(A, X)
  => A = X.
-
     
 <-(Call) :-
     format('<- ~w~n', [Call]).
