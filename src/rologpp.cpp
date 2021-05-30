@@ -141,28 +141,7 @@ PlTerm r2pl_logical(LogicalVector arg)
         r[i] = r2pl_na() ;
     }
   
-  return PlCompound("&", r) ;
-}
-
-PlTerm r2pl_logical(LogicalVector arg)
-{
-  PlTermv r(arg.size()) ;
-  for(long i=0 ; i<arg.size() ; i++)
-    switch(arg(i))
-    {
-      case 0:
-        r[i] = PlAtom("FALSE") ;
-        break ;
-      
-      case 1:    
-        r[i] = PlAtom("TRUE") ;
-        break ;
-
-      default:
-        r[i] = r2pl_na() ;
-    }
-  
-  return PlCompound("&", r) ;
+  return PlCompound("#", r) ;
 }
 
 PlTerm r2pl_integer(IntegerVector arg)
@@ -171,7 +150,7 @@ PlTerm r2pl_integer(IntegerVector arg)
   for(long i=0 ; i<arg.size() ; i++)
     r[i] = (long) arg(i) ;
   
-  return PlCompound("%", r) ;
+  return PlCompound("#", r) ;
 }
 
 PlTerm r2pl_string(CharacterVector arg)
@@ -180,7 +159,7 @@ PlTerm r2pl_string(CharacterVector arg)
   for(long i=0 ; i<arg.size() ; i++)
     r[i] = PlString(arg(i)) ;
   
-  return PlCompound("$", r) ;
+  return PlCompound("#", r) ;
 }
 
 PlTerm r2pl_null()
@@ -269,7 +248,7 @@ PREDICATE(r_init, 1)
   return true ;
 }
 
-PREDICATE(eval_, 2)
+PREDICATE(r_eval_, 2)
 {
   if(!r_instance)
     throw PlException(PlTerm("R not initialized")) ;
