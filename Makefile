@@ -20,7 +20,7 @@ check::
 
 install:
 	mv rologpp.$(SOEXT) $(PACKSODIR)
-	cp $(RINSIDEDIR).$(SOEXT) $(PACKSODIR)
+	cp $(RINSIDEDLL).$(SOEXT) $(PACKSODIR)
 
 clean:
 	rm -f $(OBJ)
