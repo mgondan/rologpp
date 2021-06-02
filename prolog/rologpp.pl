@@ -13,7 +13,6 @@
   ]).
 
 :- use_foreign_library(foreign(rologpp)).
-:- initialization(r_init).
 
 r_init :-
     current_prolog_flag(os_argv, [Argv0 | _]),
