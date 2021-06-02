@@ -2,8 +2,8 @@ SOBJ=$(PACKSODIR)/rologpp.$(SOEXT)
 INCLUDES=`R CMD config --cppflags`
 INCLUDES+=`R --vanilla --silent --no-echo -e "cat(sprintf('-I\"%s\"/Rcpp/include', .libPaths()), collapse=' ')"`
 INCLUDES+=`R --vanilla --silent --no-echo -e "cat(sprintf('-I\"%s\"/RInside/include', .libPaths()), collapse=' ')"`
-LIBS=`R CMD config --ldflags` -L"C:\Users\matth\Documents\R\win-library\4.1\RInside\lib\x64"
-LIBS+=`R --vanilla --silent --no-echo -e "cat(sprintf('-I\"%s\"/RInside/lib/x64', .libPaths()), collapse=' ')"` -llibRInside
+LIBS=`R CMD config --ldflags`
+LIBS+=`R --vanilla --silent --no-echo -e "cat(sprintf('-L\"%s\"/RInside/lib/x64', .libPaths()), collapse=' ')"` -llibRInside
 
 all: $(SOBJ)
 
