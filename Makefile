@@ -1,10 +1,9 @@
 SOBJ=$(PACKSODIR)/rologpp.$(SOEXT)
 INCLUDES1=$(shell R CMD config --cppflags)
-INCLUDES2=$(shell R --vanilla --silent --no-echo -e "cat(sprintf('-I\\\"%s/Rcpp/include\\\"', .libPaths()), collapse=' ')")
-INCLUDES3=$(shell R --vanilla --silent --no-echo -e "cat(sprintf('-I\\\"%s/RInside/include\\\"', .libPaths()), collapse=' ')")
+INCLUDES2=-I$(shell R --silent --no-echo -e "cat(system.file('include', package='Rcpp'))")
+INCLUDES3=-I$(shell R --vanilla --no-echo -e "cat(system.file('include', package='RInside'))")
 LIBS1=$(shell R CMD config --ldflags)
-LIBS2=$(shell R --vanilla --silent --no-echo -e "cat(sprintf('-L\\\"%s/RInside/lib/x64\\\"', .libPaths()), collapse=' ')") -llibRInside
-RINSIDEDLL=$(shell R --vanilla --silent --no-echo -e "cat(sprintf('\\\"%s/RInside/lib/x64/libRInside\\\"', .libPaths()), collapse=' ')")
+LIBS2=$(shell R --silent --no-echo -e "cat(system.file('lib/x64/libRInside.dll', package='RInside'))")
 
 all: $(SOBJ)
 
@@ -20,7 +19,7 @@ check::
 
 install:
 	mv rologpp.$(SOEXT) $(PACKSODIR)
-	cp $(RINSIDEDLL).$(SOEXT) $(PACKSODIR)
+	cp $(LIBS2) $(PACKSODIR)
 
 clean:
 	rm -f $(OBJ)
