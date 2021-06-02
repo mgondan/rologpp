@@ -4,6 +4,7 @@ INCLUDES2=$(shell R --vanilla --silent --no-echo -e "cat(sprintf('-I\\\"%s/Rcpp/
 INCLUDES3=$(shell R --vanilla --silent --no-echo -e "cat(sprintf('-I\\\"%s/RInside/include\\\"', .libPaths()), collapse=' ')")
 LIBS1=$(shell R CMD config --ldflags)
 LIBS2=$(shell R --vanilla --silent --no-echo -e "cat(sprintf('-L\\\"%s/RInside/lib/x64\\\"', .libPaths()), collapse=' ')") -llibRInside
+RINSIDEDIR=$(shell R --vanilla --silent --no-echo -e "cat(sprintf('\\\"%s/RInside/lib/x64\\\"', .libPaths()), collapse=' ')")
 
 all: $(SOBJ)
 
@@ -19,6 +20,7 @@ check::
 
 install:
 	mv rologpp.$(SOEXT) $(PACKSODIR)
+	cp $(RINSIDEDIR)/libRInside.$(SOEXT) $(PACKSODIR)
 
 clean:
 	rm -f $(OBJ)
