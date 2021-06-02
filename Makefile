@@ -5,6 +5,10 @@ INCLUDES3=-I$(shell R --vanilla --no-echo -e "cat(shQuote(system.file('include',
 LIBS1=$(shell R CMD config --ldflags)
 LIBS2=$(shell R --silent --no-echo -e "cat(shQuote(system.file('lib/x64/libRInside.dll', package='RInside')))")
 RDLL=$(shell which R.dll)
+RBLASSDLL=$(shell which Rblas.dll)
+RGRAPHAPPDLL=$(shell which Rgraphapp.dll)
+RICONVDLL=$(shell which Riconv.dll)
+RLAPACKDLL=$(shell which Rlapack.dll)
 
 all: $(SOBJ)
 
@@ -20,8 +24,7 @@ check::
 
 install:
 	mv rologpp.$(SOEXT) $(PACKSODIR)
-	cp $(LIBS2) $(PACKSODIR)
-	cp $(RDLL) $(PACKSODIR)
+	cp $(LIBS2) $(RDLL) $(RBLASSDLL) $(RGRAPHAPPDLL) $(RICONVDLL) $(RLAPACKDLL) $(PACKSODIR)
 
 clean:
 	rm -f $(OBJ)
