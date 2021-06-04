@@ -250,15 +250,13 @@ PREDICATE(r_init, 1)
 
 PREDICATE(r_eval_, 2)
 {
-//  if(!r_instance)
-//    throw PlException(PlTerm("R not initialized")) ;
-
   RObject Expr = pl2r(A1) ;
   RObject Res = Expr ;
   try 
   {
-    if(is<Language>(Expr))
-      Res = as<Language>(Expr).eval() ;
+    Language id("identity") ;
+    id.push_back(Expr) ;
+    Res = id.eval() ;
   } 
   catch(std::exception& ex)
   {
