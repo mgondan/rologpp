@@ -69,6 +69,8 @@ RObject pl2r_compound(PlTerm term)
     // Named arguments
     if(PL_is_compound(t) && t.name() == "=" && t.arity() == 2)
     {
+      r.push_back(pl2r(PlTerm(99))) ;
+      
       r.push_back(Named(t[1].name()) = pl2r(t[2])) ;
       continue ;
     }
