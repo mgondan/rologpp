@@ -2,7 +2,7 @@ SOBJ=$(PACKSODIR)/rologpp.$(SOEXT)
 INCLUDES1=$(shell R CMD config --cppflags)
 INCLUDES2=-I$(shell R --no-echo -e "cat(shQuote(system.file('include', package='Rcpp')))")
 INCLUDES3=-I$(shell R --no-echo -e "cat(shQuote(system.file('include', package='RInside')))")
-INCLUDES4=-I$(shell R --no-echo -e "cat(shQuote(system.file('include', package='Rcpp')))")/../../RInside/include
+INCLUDES4=-I$(shell R --no-echo -e "cat(system.file('include', package='Rcpp'))")/../../RInside/include
 LIBS1=$(shell R CMD config --ldflags)
 LIBS2=$(shell R --no-echo -e "cat(shQuote(system.file('lib/x64/libRInside.dll', package='RInside')))")
 LIBS3=$(shell R --no-echo -e "cat(shQuote(system.file('include', package='Rcpp')))")/../../RInside/lib/x64/libRInside.dll
