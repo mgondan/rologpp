@@ -18,6 +18,11 @@ all: $(SOBJ)
 OBJ=rologpp.o
 
 %.o: src/%.cpp
+	echo $(INCLUDES1)
+	echo $(INCLUDES2)
+	echo $(INCLUDES3)
+	echo $(INCLUDES4)
+	echo $(INCLUDES5)
 	swipl-ld $(INCLUDES1) $(INCLUDES2) $(INCLUDES3) $(INCLUDES4) $(INCLUDES5) -shared -o rologpp src/$*.cpp $(LIBS1) $(LIBS2) $(LIBS3)
 
 $(SOBJ): $(OBJ)
