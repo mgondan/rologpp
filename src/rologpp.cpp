@@ -64,17 +64,17 @@ RObject pl2r_compound(PlTerm term)
   Language r(term.name()) ;
   for(unsigned int i=1 ; i<=term.arity() ; i++)
   {
-    /*
-     * // compounds like '='(x, y) are named arguments
-     if(PL_is_compound(t[i]) && t[i].name() == std::string("=") && t[i].arity() == 2)
-     {
-     PlTerm u = t[i] ;
-     l.push_back(Named(u[1].name()) = pl2r_leaf(u[2])) ;
-     continue ;
-     }
-     */
+    PlTerm t = term[i] ;
     
-    r.push_back(pl2r(term[i])) ;
+    // Named arguments
+    if(PL_is_compound(t) && t.name() == "=" && t.arity() == 2)
+    {
+      r.push_back(Named(t[1].name()) = pl2r(t[2])) ;
+      continue ;
+    }
+    
+    // No name
+    r.push_back(pl2r(t)) ;
   }
   
   return as<RObject>(r) ;
