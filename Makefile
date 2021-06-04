@@ -17,7 +17,7 @@ all: $(SOBJ)
 OBJ=rologpp.o
 
 %.o: src/%.cpp
-	swipl-ld $(INCLUDES1) $(INCLUDES2) $(INCLUDES3) -shared -o rologpp src/$*.cpp $(LIBS1) $(LIBS2)
+	swipl-ld $(INCLUDES1) $(INCLUDES2) $(INCLUDES3) $(INCLUDES4) -shared -o rologpp src/$*.cpp $(LIBS1) $(LIBS2) $(LIBS3)
 
 $(SOBJ): $(OBJ)
 	mkdir -p $(PACKSODIR)
