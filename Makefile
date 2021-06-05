@@ -4,6 +4,7 @@ INCLUDES2=-I$(shell R --no-echo -e "cat(shQuote(system.file('include', package='
 INCLUDES3=-I$(shell R --no-echo -e "cat(shQuote(system.file('include', package='RInside')))")
 LIBS1=$(shell R CMD config --ldflags)
 LIBS2=-L$(shell R --no-echo -e "cat(shQuote(system.file('lib', package='RInside')))") -lRInside
+LIBS3=-Wl,-rpath,$(shell R --no-echo -e "cat(shQuote(system.file('lib', package='RInside')))")
 RDLL="$(shell which R.dll)"
 RBLASSDLL="$(shell which Rblas.dll)"
 RGRAPHAPPDLL="$(shell which Rgraphapp.dll)"
@@ -15,7 +16,7 @@ all: $(SOBJ)
 OBJ=rologpp.o
 
 %.o: src/%.cpp
-	swipl-ld $(INCLUDES1) $(INCLUDES2) $(INCLUDES3) -shared -o rologpp src/$*.cpp $(LIBS1) $(LIBS2)
+	swipl-ld $(INCLUDES1) $(INCLUDES2) $(INCLUDES3) -shared -o rologpp src/$*.cpp $(LIBS1) $(LIBS2) $(LIBS3)
 
 $(SOBJ): $(OBJ)
 	mkdir -p $(PACKSODIR)
