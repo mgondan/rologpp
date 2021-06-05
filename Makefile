@@ -24,6 +24,8 @@ check::
 
 install:
 	mv rologpp.$(SOEXT) $(PACKSODIR)
+
+inst:
 	cp $(LIBS2) $(RDLL) $(RBLASSDLL) $(RGRAPHAPPDLL) $(RICONVDLL) $(RLAPACKDLL) $(PACKSODIR)
 
 clean:
