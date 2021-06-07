@@ -13,7 +13,7 @@ ifeq ($(RINSIDE),)
 endif
 
 LIBS2=-L$(RINSIDEQ) -lRInside
-LIBS3=-Wl,-rpath,$(RINSIDEQQ)
+LIBS3=-Wl,-rpath,$(RINSIDEQ)
 
 RDLL="$(shell which R.dll)"
 RBLASSDLL="$(shell which Rblas.dll)"
