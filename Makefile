@@ -6,7 +6,7 @@ LIBS1=$(shell R CMD config --ldflags)
 
 RINSIDE=$(shell R --slave -e "cat(shQuote(system.file('lib/x64', package='RInside')))")
 RINSIDEQQ=$(shell R --slave -e "cat(shQuote(shQuote(system.file('lib/x64', package='RInside'), type='sh')))")
-ifeq ($(RINSIDE),)
+ifeq ($(RINSIDE),"''")
   RINSIDE=$(shell R --slave -e "cat(shQuote(system.file('lib', package='RInside')))")
   RINSIDEQQ=$(shell R --slave -e "cat(shQuote(shQuote(system.file('lib', package='RInside'), type='sh')))")
 endif
