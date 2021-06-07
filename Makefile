@@ -1,10 +1,10 @@
 SOBJ=$(PACKSODIR)/rologpp.$(SOEXT)
 INCLUDES1=$(shell R CMD config --cppflags)
-INCLUDES2=-I$(shell R --no-echo -e "cat(shQuote(system.file('include', package='Rcpp')))")
-INCLUDES3=-I$(shell R --no-echo -e "cat(shQuote(system.file('include', package='RInside')))")
+INCLUDES2=-I$(shell R --slave -e "cat(shQuote(system.file('include', package='Rcpp')))")
+INCLUDES3=-I$(shell R --slave -e "cat(shQuote(system.file('include', package='RInside')))")
 LIBS1=$(shell R CMD config --ldflags)
-LIBS2=-L$(shell R --no-echo -e "cat(shQuote(system.file('lib', package='RInside')))") -lRInside
-LIBS3=-Wl,-rpath,$(shell R --no-echo -e "cat(shQuote(system.file('lib', package='RInside')))")
+LIBS2=-L$(shell R --slave -e "cat(shQuote(system.file('lib', package='RInside')))") -lRInside
+LIBS3=-Wl,-rpath,$(shell R --slave -e "cat(shQuote(system.file('lib', package='RInside')))")
 RDLL="$(shell which R.dll)"
 RBLASSDLL="$(shell which Rblas.dll)"
 RGRAPHAPPDLL="$(shell which Rgraphapp.dll)"
