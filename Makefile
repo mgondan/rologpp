@@ -4,14 +4,15 @@ INCLUDES2=-I$(shell R --slave -e "cat(shQuote(system.file('include', package='Rc
 INCLUDES3=-I$(shell R --slave -e "cat(shQuote(system.file('include', package='RInside')))")
 LIBS1=$(shell R CMD config --ldflags)
 
-RINSIDE=$(shell R --slave -e "cat(shQuote(system.file('lib/x64', package='RInside')))")
+RINSIDE=$(shell R --slave -e "cat(system.file('lib/x64', package='RInside'))")
+RINSIDEQ=$(shell R --slave -e "cat(shQuote(system.file('lib/x64', package='RInside')))")
 RINSIDEQQ=$(shell R --slave -e "cat(shQuote(shQuote(system.file('lib/x64', package='RInside'), type='sh')))")
-ifeq ($(RINSIDE),"''")
-  RINSIDE=$(shell R --slave -e "cat(shQuote(system.file('lib', package='RInside')))")
+ifeq ($(RINSIDE),)
+  RINSIDEQ=$(shell R --slave -e "cat(shQuote(system.file('lib', package='RInside')))")
   RINSIDEQQ=$(shell R --slave -e "cat(shQuote(shQuote(system.file('lib', package='RInside'), type='sh')))")
 endif
 
-LIBS2=-L$(RINSIDE) -lRInside
+LIBS2=-L$(RINSIDEQ) -lRInside
 LIBS3=-Wl,-rpath,$(RINSIDEQQ)
 
 RDLL="$(shell which R.dll)"
