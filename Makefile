@@ -11,7 +11,7 @@ ifeq ($(RINSIDE),)
   RINSIDEQQ=$(shell R --slave -e "cat(shQuote(shQuote(system.file('lib', package='RInside'), type='sh')))")
 endif
 
-LIBS2=-L$(RINSIDE)))") -lRInside
+LIBS2=-L$(RINSIDE) -lRInside
 LIBS3=-Wl,-rpath,$(RINSIDEQQ)
 
 RDLL="$(shell which R.dll)"
