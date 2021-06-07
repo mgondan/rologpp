@@ -3,7 +3,7 @@ INCLUDES1=$(shell R CMD config --cppflags)
 INCLUDES2=-I$(shell R --slave -e "cat(shQuote(system.file('include', package='Rcpp')))")
 INCLUDES3=-I$(shell R --slave -e "cat(shQuote(system.file('include', package='RInside')))")
 LIBS1=$(shell R CMD config --ldflags)
-RINSIDEQ=$(shell R --slave -e "cat(shQuote(paste(system.file(package='RInside'), list.files(pattern='libRInside.$(SOEXT)', path=system.file(package='RInside'), recursive=TRUE)[1], sep='/')))"
+RINSIDEQ=$(shell R --slave -e "cat(shQuote(paste(system.file(package='RInside'), list.files(pattern='libRInside.$(SOEXT)', path=system.file(package='RInside'), recursive=TRUE)[1], sep='/')))")
 LIBS2=-L$(RINSIDEQ) -lRInside
 LIBS3=-Wl,-rpath,"$(RINSIDEQ)"
 
