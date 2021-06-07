@@ -3,8 +3,16 @@ INCLUDES1=$(shell R CMD config --cppflags)
 INCLUDES2=-I$(shell R --slave -e "cat(shQuote(system.file('include', package='Rcpp')))")
 INCLUDES3=-I$(shell R --slave -e "cat(shQuote(system.file('include', package='RInside')))")
 LIBS1=$(shell R CMD config --ldflags)
-LIBS2=-L$(shell R --slave -e "cat(shQuote(system.file('lib/x64', package='RInside')))") -lRInside
-LIBS3=-Wl,-rpath,$(shell R --slave -e "cat(shQuote(shQuote(system.file('lib/x64', package='RInside'), type='sh')))")
+
+RINSIDE=$(shell R --slave -e "cat(shQuote(system.file('lib/x64', package='RInside')))")
+RINSIDEQQ=$(shell R --slave -e "cat(shQuote(shQuote(system.file('lib/x64', package='RInside'), type='sh')))")
+ifeq ($(RINSIDE),)
+  RINSIDE=$(shell R --slave -e "cat(shQuote(system.file('lib', package='RInside')))")
+  RINSIDEQQ=$(shell R --slave -e "cat(shQuote(shQuote(system.file('lib', package='RInside'), type='sh')))")
+endif
+
+LIBS2=-L$(RINSIDE)))") -lRInside
+LIBS3=-Wl,-rpath,$(RINSIDEQQ)
 
 RDLL="$(shell which R.dll)"
 RBLASSDLL="$(shell which Rblas.dll)"
