@@ -4,7 +4,6 @@ INCLUDES2=-I$(shell R --slave -e "cat(shQuote(system.file('include', package='Rc
 INCLUDES3=-I$(shell R --slave -e "cat(shQuote(system.file('include', package='RInside')))")
 LIBS1=$(shell R CMD config --ldflags)
 RINSIDEQ=$(shell R --slave -e "cat(shQuote(dirname(paste(system.file(package='RInside'), list.files(pattern='libRInside.$(SOEXT)', path=system.file(package='RInside'), recursive=TRUE)[1], sep='/'))))")
-RINSIDEQQ=$(shell R --slave -e "cat(shQuote(dirname(paste(system.file(package='RInside'), list.files(pattern='libRInside.$(SOEXT)', path=system.file(package='RInside'), recursive=TRUE)[1], sep='/'), type='sh')))")
 LIBS2=-L$(RINSIDEQ) -lRInside
 LIBS3=-Wl,-rpath,'$(RINSIDEQ)'
 
@@ -28,6 +27,7 @@ check::
 
 install:
 	mv rologpp.$(SOEXT) $(PACKSODIR)
+	echo $(SWIARCH)
 	cp $(RDLL) $(RBLASSDLL) $(RGRAPHAPPDLL) $(RICONVDLL) $(RLAPACKDLL) $(PACKSODIR)
 
 clean:
