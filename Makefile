@@ -8,10 +8,10 @@ LIBS2=-L$(RINSIDEQ) -lRInside
 LIBS3=-Wl,-rpath,'$(RINSIDEQ)'
 
 CP=rologpp.$(SOEXT)
-ifeq $(SWIARCH,x86_64-linux)
+ifeq($(SWIARCH),x86_64-linux)
 endif
 
-ifeq $(SWIARCH,x64-win64)
+ifeq($(SWIARCH),x64-win64)
 	RDLL="$(shell which R.dll)"
 	RBLASSDLL="$(shell which Rblas.dll)"
 	RGRAPHAPPDLL="$(shell which Rgraphapp.dll)"
