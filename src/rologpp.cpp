@@ -248,8 +248,13 @@ PREDICATE(r_init, 1)
   return true ;
 }
 
+extern static int num_initialized ;
+
 PREDICATE(r_eval_, 2)
 {
+  if(num_initialized == 0)
+    throw PlException(PlTerm("R not initialized. Please invoke r_init.")) ;
+  
   RObject Expr = pl2r(A1) ;
   RObject Res = Expr ;
   try 
