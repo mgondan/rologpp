@@ -248,11 +248,11 @@ PREDICATE(r_init, 1)
   return true ;
 }
 
-extern static int num_initialized ;
+LibExtern char *R_TempDir;    
 
 PREDICATE(r_eval_, 2)
 {
-  if(num_initialized == 0)
+  if(!R_TempDir)
     throw PlException(PlTerm("R not initialized. Please invoke r_init.")) ;
   
   RObject Expr = pl2r(A1) ;
