@@ -29,13 +29,16 @@ endif
 
 all: $(SOBJ)
 
-OBJ=rologpp.o
+OBJ=Rcpp rologpp.o
 
 %.o: src/%.cpp
 	swipl-ld $(INCLUDES1) $(INCLUDES2) $(INCLUDES3) -shared -o rologpp src/$*.cpp $(LIBS1) $(LIBS2) $(LIBS3)
 
 $(SOBJ): $(OBJ)
 	mkdir -p $(PACKSODIR)
+
+Rcpp:
+	R --slave -e "install.packages('Rcpp')"
 
 check::
 
