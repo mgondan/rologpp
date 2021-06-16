@@ -2,7 +2,7 @@ SOBJ=$(PACKSODIR)/rologpp.$(SOEXT)
 INCLUDES1=$(shell R CMD config --cppflags)
 
 INCLUDES2=-I$(shell R --slave -e "cat(shQuote(system.file('include', package='Rcpp')))")
-ifeq ($(INCLUDES2),)
+ifeq ($(INCLUDES2),"")
     echo "Installing Rcpp"
     R --slave -e "install.packages('Rcpp')"
     INCLUDES2=-I$(shell R --slave -e "cat(shQuote(system.file('include', package='Rcpp')))")
