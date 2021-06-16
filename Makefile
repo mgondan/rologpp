@@ -1,6 +1,13 @@
 SOBJ=$(PACKSODIR)/rologpp.$(SOEXT)
 INCLUDES1=$(shell R CMD config --cppflags)
+
 INCLUDES2=-I$(shell R --slave -e "cat(shQuote(system.file('include', package='Rcpp')))")
+ifeq ($(INCLUDES2),)
+    echo "Installing Rcpp"
+    R --slave -e "install.packages('Rcpp')"
+    INCLUDES2=-I$(shell R --slave -e "cat(shQuote(system.file('include', package='Rcpp')))")
+endif
+
 INCLUDES3=-I$(shell R --slave -e "cat(shQuote(system.file('include', package='RInside')))")
 LIBS1=$(shell R CMD config --ldflags)
 RINSIDEQ=$(shell R --slave -e "cat(shQuote(dirname(paste(system.file(package='RInside'), list.files(pattern='libRInside.$(SOEXT)', path=system.file(package='RInside'), recursive=TRUE)[1], sep='/'))))")
