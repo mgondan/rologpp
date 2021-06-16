@@ -10,7 +10,7 @@ ifeq ($(SWIARCH),x86_64-linux)
 endif
 
 ifeq ($(SWIARCH),x64-win64)
-	RINSIDEQ=$(shell Rscript -e "cat(shQuote(dirname(paste(system.file(package='RInside'), grep('x64/RInside.dll', 'list.files(path=system.file(package='RInside'), recursive=TRUE), value=TRUE), sep='/'))))")
+	RINSIDEQ=$(shell Rscript -e "cat(shQuote(dirname(paste(system.file(package='RInside'), grep('x64/RInside.$(SOEXT)', list.files(path=system.file(package='RInside'), recursive=TRUE), value=TRUE), sep='/'))))")
 	RDLL="$(shell which R.dll)"
 	RBLASSDLL="$(shell which Rblas.dll)"
 	RGRAPHAPPDLL="$(shell which Rgraphapp.dll)"
