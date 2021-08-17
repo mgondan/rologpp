@@ -13,6 +13,7 @@
   ]).
 
 :- use_foreign_library(foreign(rologpp)).
+:- use_module(library(terms)).
 
 r_init :-
     current_prolog_flag(os_argv, [Argv0 | _]),
