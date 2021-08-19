@@ -6,7 +6,6 @@ LIBS1=$(shell R CMD config --ldflags)
 
 CP=rologpp.$(SOEXT)
 ifeq ($(SWIARCH),x86_64-linux)
-	RINSIDEQ=$(shell Rscript -e "cat(shQuote(dirname(paste(system.file(package='RInside'), list.files(pattern='libRInside.$(SOEXT)', path=system.file(package='RInside'), recursive=TRUE)[1], sep='/'))))")
 	LIBS2=$(shell Rscript -e "RInside:::LdFlags()")
 endif
 
