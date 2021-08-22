@@ -22,8 +22,15 @@ all: $(SOBJ)
 
 OBJ=rologpp.o
 
+ifeq ($(SWIARCH),x64-win64)
 %.o: src/%.cpp
 	swipl-ld -v $(INCLUDES1) $(INCLUDES2) $(RINSIDECFLAGS) -shared -o rologpp src/$*.cpp $(RLIBS) $(RINSIDELIBS)
+endif
+
+ifeq ($(SWIARCH),x64-linux)
+%.o: src/%.cpp
+	swipl-ld -v $(INCLUDES1) $(INCLUDES2) $(RINSIDECFLAGS) -shared -o rologpp src/$*.cpp $(RLIBS) $(RINSIDELIBS)
+endif
 
 $(SOBJ): $(OBJ)
 	mkdir -p $(PACKSODIR)
