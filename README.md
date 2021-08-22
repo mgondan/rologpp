@@ -10,4 +10,6 @@ SWI> `assert(prolog_pack:environment('R_LIBS_USER', X) :- getenv('R_LIBS_USER', 
 
 SWI> `pack_install(rologp).` (Please note that rologp is written with only one p)
 
+SWI> `use_module(library(rologp)).`
+
 SWI> `r_eval(2+2, X).`
