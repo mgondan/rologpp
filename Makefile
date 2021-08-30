@@ -1,4 +1,6 @@
 SOBJ=$(PACKSODIR)/rologpp.$(SOEXT)
+
+R_HOME=/usr/lib/R
 RCPPFLAGS=$(shell R CMD config --cppflags)
 INCLUDES2=-I$(shell Rscript -e "cat(shQuote(system.file('include', package='Rcpp')))")
 
