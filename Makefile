@@ -1,10 +1,10 @@
 SOBJ=$(PACKSODIR)/rologpp.$(SOEXT)
-INCLUDES1=$(shell R CMD config --cppflags)
+INCLUDES1=-I/usr/share/R/include
 INCLUDES2=-I$(shell Rscript -e "cat(shQuote(system.file('include', package='Rcpp')))")
 
 CP=rologpp.$(SOEXT)
 
-RLIBS=$(shell R CMD config --ldflags)
+RLIBS=-Wl,--export-dynamic -fopenmp -Wl,-Bsymbolic-functions -Wl,-z,relro -L/usr/lib/R/lib -lR -lpcre2-8 -llzma -lbz2 -lz -ltirpc -lrt -ldl -lm -licuuc -licui18n
 RINSIDECFLAGS=$(shell Rscript -e "RInside:::CFlags()")
 RINSIDELIBS=$(shell Rscript -e "RInside:::LdFlags()")
 
