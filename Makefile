@@ -5,7 +5,6 @@ INCLUDES2=-I$(shell Rscript -e "cat(shQuote(system.file('include', package='Rcpp
 CP=rologpp.$(SOEXT)
 
 RLIBS=$(shell R CMD config --ldflags)
-ROLOGCFLAGS=$(shell Rscript -e "rolog:::CFlags()")
 RINSIDECFLAGS=$(shell Rscript -e "RInside:::CFlags()")
 RINSIDELIBS=$(shell Rscript -e "RInside:::LdFlags()")
 
@@ -29,7 +28,7 @@ endif
 
 ifeq ($(SWIARCH),x86_64-linux)
 %.o: src/%.cpp
-	swipl-ld -v $(INCLUDES1) $(INCLUDES2) $(RINSIDECFLAGS) $(ROLOGCFLAGS) -shared -o rologpp src/$*.cpp $(RLIBS) $(RINSIDELIBS)
+	swipl-ld -v $(INCLUDES1) $(INCLUDES2) $(RINSIDECFLAGS) -shared -o rologpp src/$*.cpp $(RLIBS) $(RINSIDELIBS)
 endif
 
 $(SOBJ): $(OBJ)
