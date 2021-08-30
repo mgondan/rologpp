@@ -1,5 +1,5 @@
 SOBJ=$(PACKSODIR)/rologpp.$(SOEXT)
-INCLUDES1=-I/usr/share/R/include
+RCPPFLAGS=$(shell R CMD config --cppflags)
 INCLUDES2=-I$(shell Rscript -e "cat(shQuote(system.file('include', package='Rcpp')))")
 
 CP=rologpp.$(SOEXT)
@@ -28,7 +28,7 @@ endif
 
 ifeq ($(SWIARCH),x86_64-linux)
 %.o: src/%.cpp
-	$(CC) $(CFLAGS) $(INCLUDES1) $(INCLUDES2) $(RINSIDECFLAGS) $(LDSOFLAGS) -o $*.$(SOEXT) src/$*.cpp $(RLIBS) $(RINSIDELIBS)
+	$(CC) $(CFLAGS) $(RCPPFLAGS) $(INCLUDES2) $(RINSIDECFLAGS) $(LDSOFLAGS) -o $*.$(SOEXT) src/$*.cpp $(RLIBS) $(RINSIDELIBS)
 endif
 
 $(SOBJ): $(OBJ)
