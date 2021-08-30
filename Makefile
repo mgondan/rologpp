@@ -28,7 +28,7 @@ endif
 
 ifeq ($(SWIARCH),x86_64-linux)
 %.o: src/%.cpp
-	swipl-ld -v $(INCLUDES1) $(INCLUDES2) $(RINSIDECFLAGS) -shared -o rologpp src/$*.cpp $(RLIBS) $(RINSIDELIBS)
+	$(CC) $(CFLAGS) $(INCLUDES1) $(INCLUDES2) $(RINSIDECFLAGS) $(LDSOFLAGS) -o rologpp src/$*.cpp $(RLIBS) $(RINSIDELIBS) $(SWILIB)
 endif
 
 $(SOBJ): $(OBJ)
