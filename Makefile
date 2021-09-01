@@ -15,11 +15,20 @@ RINSIDELIBS=$(shell $(R_PATH)Rscript -e "RInside:::LdFlags()")
 CP=rologpp.$(SOEXT)
 
 ifeq ($(SWIARCH),x64-win64)
-	RDLL="$(shell which R.dll)"
-	RBLASSDLL="$(shell which Rblas.dll)"
-	RGRAPHAPPDLL="$(shell which Rgraphapp.dll)"
-	RICONVDLL="$(shell which Riconv.dll)"
-	RLAPACKDLL="$(shell which Rlapack.dll)"
+	ifeq ($(R_PATH,''))
+		RDLL="$(shell which R.dll)"
+		RBLASSDLL="$(shell which Rblas.dll)"
+		RGRAPHAPPDLL="$(shell which Rgraphapp.dll)"
+		RICONVDLL="$(shell which Riconv.dll)"
+		RLAPACKDLL="$(shell which Rlapack.dll)"
+	else
+		RDLL=$(R_PATH)R.dll
+		RBLASSDLL=$(R_PATH)Rblas.dll
+		RGRAPHAPPDLL=$(R_PATH)Rgraphapp.dll
+		RICONVDLL=$(R_PATH)Riconv.dll
+		RLAPACKDLL=$(R_PATH)Rlapack.dll
+	endif
+
 	CP+=$(RDLL) $(RBLASSDLL) $(RGRAPHAPPDLL) $(RICONVDLL) $(RLAPACKDLL)
 endif
 
