@@ -1,16 +1,16 @@
 SOBJ=$(PACKSODIR)/rologpp.$(SOEXT)
 
 ifeq ($(R_HOME),)
-	RCPPFLAGS=$(shell R CMD config --cppflags)
-	RLIBS=$(shell R CMD config --ldflags)
-	INCLUDES2=-I$(shell Rscript -e "cat(shQuote(system.file('include', package='Rcpp')))")
+	R_PATH=''
 else
-	RCPPFLAGS=$(shell $(R_HOME)/bin/R CMD config --cppflags)
-	RLIBS=$(shell $(R_HOME)/bin/R CMD config --ldflags)
-	INCLUDES2=-I$(shell $(R_HOME)/bin/Rscript -e "cat(shQuote(system.file('include', package='Rcpp')))")
+	R_PATH=$(R_HOME)/bin/
 endif
-
-INCLUDES2=-I$(shell Rscript -e "cat(shQuote(system.file('include', package='Rcpp')))")
+	
+RCPPFLAGS=$(shell $(R_PATH)R CMD config --cppflags)
+RLIBS=$(shell $(R_PATH)R CMD config --ldflags)
+INCLUDES2=-I$(shell $(R_PATH)Rscript -e "cat(shQuote(system.file('include', package='Rcpp')))")
+RINSIDECFLAGS=$(shell $(R_PATH)Rscript -e "RInside:::CFlags()")
+endif
 
 CP=rologpp.$(SOEXT)
 
