@@ -40,10 +40,10 @@ endif
 $(SOBJ): $(OBJ)
 	mkdir -p $(PACKSODIR)
 
-check::
-
 install:
 	cp $(CP) $(PACKSODIR)
+
+check::
 
 clean:
 	rm -f $(OBJ)
