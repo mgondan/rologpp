@@ -42,7 +42,6 @@ $(SOBJ): $(OBJ)
 
 install:
 	cp $(CP) $(PACKSODIR)
-	cp $(R_PATH)*.dll $(PACKSODIR)
 
 check::
 
