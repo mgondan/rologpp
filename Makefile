@@ -29,7 +29,7 @@ OBJ=rologpp.o
 
 ifeq ($(SWIARCH),x64-win64)
 %.o: src/%.cpp
-	swipl-ld -v $(INCLUDES1) $(INCLUDES2) $(RINSIDECFLAGS) -shared -o rologpp src/$*.cpp $(RLIBS) $(RINSIDELIBS)
+	swipl-ld -v $(RCPPFLAGS) $(INCLUDES2) $(RINSIDECFLAGS) -shared -o rologpp src/$*.cpp $(RLIBS) $(RINSIDELIBS)
 endif
 
 ifeq ($(SWIARCH),x86_64-linux)
