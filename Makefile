@@ -10,12 +10,9 @@ RCPPFLAGS=$(shell $(R_PATH)R CMD config --cppflags)
 RLIBS=$(shell $(R_PATH)R CMD config --ldflags)
 INCLUDES2=-I$(shell $(R_PATH)Rscript -e "cat(shQuote(system.file('include', package='Rcpp')))")
 RINSIDECFLAGS=$(shell $(R_PATH)Rscript -e "RInside:::CFlags()")
-endif
+RINSIDELIBS=$(shell $(R_PATH)Rscript -e "RInside:::LdFlags()")
 
 CP=rologpp.$(SOEXT)
-
-RINSIDECFLAGS=$(shell Rscript -e "RInside:::CFlags()")
-RINSIDELIBS=$(shell Rscript -e "RInside:::LdFlags()")
 
 ifeq ($(SWIARCH),x64-win64)
 	RDLL="$(shell which R.dll)"
