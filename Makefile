@@ -3,9 +3,11 @@ SOBJ=$(PACKSODIR)/rologpp.$(SOEXT)
 ifeq ($(R_HOME),)
 	RCPPFLAGS=$(shell R CMD config --cppflags)
 	RLIBS=$(shell R CMD config --ldflags)
+	INCLUDES2=-I$(shell Rscript -e "cat(shQuote(system.file('include', package='Rcpp')))")
 else
 	RCPPFLAGS=$(shell $(R_HOME)/bin/R CMD config --cppflags)
 	RLIBS=$(shell $(R_HOME)/bin/R CMD config --ldflags)
+	INCLUDES2=-I$(shell $(R_HOME)/bin/Rscript -e "cat(shQuote(system.file('include', package='Rcpp')))")
 endif
 
 INCLUDES2=-I$(shell Rscript -e "cat(shQuote(system.file('include', package='Rcpp')))")
