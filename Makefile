@@ -40,8 +40,8 @@ ifeq ($(SWIARCH),x64-win64)
 %.o: src/%.cpp
 	swipl-ld -v $(RCPPFLAGS) $(INCLUDES2) $(RINSIDECFLAGS) -shared -o rologpp src/$*.cpp $(RLIBS) $(RINSIDELIBS)
 	
-	echo "$(CXX) $(CFLAGS) -c $(RCPPFLAGS) $(INCLUDES2) $(RINSIDECFLAGS) -o src/$*.o src/$*.cpp"
-	echo "$(CXX) -o rologpp.$(SOEXT) -shared src/$*.o  $(RLIBS) $(RINSIDELIBS)"
+	$(CXX) -D_REENTRANT -D__WINDOWS__ -D_WINDOWS -D__SWI_PROLOG__ $(CFLAGS) -c $(RCPPFLAGS) $(INCLUDES2) $(RINSIDECFLAGS) -o src/$*.o src/$*.cpp
+	$(CXX) -o rologpp.$(SOEXT) -shared src/$*.o  $(RLIBS) $(RINSIDELIBS)
 endif
 
 ifeq ($(SWIARCH),x86_64-linux)
