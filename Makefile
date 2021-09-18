@@ -3,7 +3,7 @@ SOBJ=$(PACKSODIR)/rologpp.$(SOEXT)
 ifeq ($(R_HOME),)
 	R_PATH=''
 else
-	R_PATH='$(R_HOME)/bin/x64/'
+	R_PATH='$(R_HOME)/bin/'
 endif
 	
 RCPPFLAGS=$(shell $(R_PATH)R CMD config --cppflags)
