@@ -43,6 +43,8 @@ OBJ=rologpp.o
 ifeq ($(SWIARCH),x64-win64)
 %.o: src/%.cpp
 	echo linux
+	echo $(R_HOME)
+	echo $(R_PATH)
 	echo $(shell $(R_PATH)Rscript -e "cat(shQuote(system.file('include', package='Rcpp')))")
 
 	swipl-ld -v $(RCPPFLAGS) $(INCLUDES2) $(RINSIDECFLAGS) -shared -o rologpp src/$*.cpp $(RLIBS) $(RINSIDELIBS)
