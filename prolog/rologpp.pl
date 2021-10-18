@@ -44,10 +44,14 @@ pl2r_(A[B], X)
 pl2r_({}, X)
  => X = 'NULL'.
  
-pl2r_({A}, X)
- => pl2r_curly({A}, C),
+pl2r_({A; B}, X)
+ => pl2r_curly({A; B}, C),
     S =.. [';' | C],
     X = '{'(S).
+
+pl2r_({A}, X)
+ => pl2r_(A, C),
+    X = '{'(C).
 
 pl2r_(Hash, X),
     compound(Hash),
