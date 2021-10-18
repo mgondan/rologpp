@@ -41,6 +41,9 @@ pl2r_(A =< B, X)
 pl2r_(A[B], X)
  => pl2r_('['(A, B), X).
 
+pl2r_({A}, X)
+ => pl2r_('{'(A), X).
+
 pl2r_(Hash, X),
     compound(Hash),
     compound_name_arguments(Hash, #, Args)
