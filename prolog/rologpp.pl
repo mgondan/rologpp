@@ -23,7 +23,8 @@ r_init :-
 :- op(800, fx, <-).
 
 r_call(Expr) :-
-    writeln(Expr).
+    pl2r_(Expr, R),
+    r_eval_(R).
 
 r_eval(X, Y) :-
     pl2r_(X, R),
