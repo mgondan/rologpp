@@ -46,7 +46,8 @@ pl2r_({}, X)
  
 pl2r_({A}, Curly)
  => pl2r_curly({A}, X),
-    Curly =.. ['{' | X].
+    S =.. [';' | X],
+    C = '{'(S).
 
 pl2r_(Hash, X),
     compound(Hash),
