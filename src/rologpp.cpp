@@ -250,6 +250,28 @@ PREDICATE(r_init, 1)
 
 LibExtern char *R_TempDir;    
 
+PREDICATE(r_eval_, 1)
+{
+  if(!R_TempDir)
+    throw PlException(PlTerm("R not initialized. Please invoke r_init.")) ;
+  
+  RObject Expr = pl2r(A1) ;
+  RObject Res = Expr ;
+  try 
+  {
+    Language id("identity") ;
+    id.push_back(Expr) ;
+    Res = id.eval() ;
+  } 
+  catch(std::exception& ex)
+  {
+    throw PlException(PlTerm(ex.what())) ;
+    return false ;
+  }
+  
+  return true ;
+}
+
 PREDICATE(r_eval_, 2)
 {
   if(!R_TempDir)
