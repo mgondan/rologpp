@@ -46,7 +46,7 @@ pl2r_({}, X)
  
 pl2r_({A}, X)
  => pl2r_curly({A}, C),
-    S =.. [';' | X],
+    S =.. [';' | C],
     X = '{'(S).
 
 pl2r_(Hash, X),
@@ -68,8 +68,8 @@ pl2r_curly({A; B}, X)
     X = [H | T].
 
 pl2r_curly({A}, X)
- => pl2r_(A, R),
-    X = [R].
+ => pl2r_(A, H),
+    X = [H].
 
 <-(Call) :-
     format('<- ~w~n', [Call]).
