@@ -223,7 +223,7 @@ RObject pl2r_compound(PlTerm pl)
     return pl2r_boolvec(pl) ;
 
   // Other compounds
-  List r = List::create(Symbol(pl.name())) ;
+  Language r(pl.name()) ;
   for(unsigned int i=1 ; i<=pl.arity() ; i++)
   {
     PlTerm arg = pl[i] ;
@@ -233,16 +233,15 @@ RObject pl2r_compound(PlTerm pl)
     {
       PlTerm a1 = arg.operator[](1) ;
       PlTerm a2 = arg.operator[](2) ;
-      
       if(PL_is_string(a1))
       {
-        r.push_back(pl2r(a2), (char*) a1) ;
+        r.push_back(Named((char*) a1) = pl2r(a2)) ;
         continue ;
       }
   
       if(PL_is_atom(a1))
       {
-        r.push_back(pl2r(a2), a1.name()) ;
+        r.push_back(Named(a1.name()) = pl2r(a2) ;
         continue ;
       }
     }
@@ -251,8 +250,7 @@ RObject pl2r_compound(PlTerm pl)
     r.push_back(pl2r(arg)) ;
   }
   
-  Language l = as<Language>(r) ;
-  return as<RObject>(l) ;
+  return as<RObject>(r) ;
 }
 
 // Translate prolog list to R list
