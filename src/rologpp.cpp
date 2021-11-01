@@ -223,7 +223,7 @@ RObject pl2r_compound(PlTerm pl)
     return pl2r_boolvec(pl) ;
 
   // Other compounds
-  List r = List::create(as<Symbol>(pl.name())) ;
+  List r = List::create(Symbol(pl.name())) ;
   for(unsigned int i=1 ; i<=pl.arity() ; i++)
   {
     PlTerm arg = pl[i] ;
