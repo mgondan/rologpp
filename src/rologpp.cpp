@@ -4,235 +4,593 @@
 using namespace Rcpp;
 #include "RInside.h"
 
-RObject pl2r(PlTerm arg) ;
-
+// Prolog -> R
 RObject pl2r_null()
 {
   return R_NilValue ;
 }
 
-RObject pl2r_na()
+// This helper function checks for na and then translates an individual PlTerm 
+// to a double.
+double pl2r_double(PlTerm pl)
 {
-  LogicalVector r(1) ;
-  r(0) = NA_LOGICAL ;
-  return r ;
-}
+  if(PL_is_atom(pl) && pl == "na")
+    return NA_REAL ;
 
-RObject pl2r_real(PlTerm arg)
-{
-  NumericVector r(1) ;
-  r(0) = arg ;
-  return r ;
-}
-
-RObject pl2r_integer(PlTerm arg)
-{
-  IntegerVector r(1) ;
-  r(0) = arg ;
-  return r ;
-}
-
-RObject pl2r_char(PlTerm arg)
-{
-  CharacterVector r(1) ;
-  r(0) = (char*) arg ;
-  return r ;
-}
-
-RObject pl2r_symbol(PlTerm arg)
-{
-  if(arg == "NA")
-    return pl2r_na() ;
-
-  return as<RObject>(Symbol((char*) arg)) ;
-}
-
-RObject pl2r_list(PlTerm arg)
-{
-  List r ;
-  
-  PlTail tail(arg) ;
-  PlTerm e ;
-  while(tail.next(e))
-    r.push_back(pl2r(e)) ;
-  
-  return r ;
-}
-
-RObject pl2r_compound(PlTerm term)
-{
-  Language r(term.name()) ;
-  for(unsigned int i=1 ; i<=term.arity() ; i++)
+  try 
   {
-    PlTerm t = term[i] ;
-    
-    // Named arguments
-    if(PL_is_compound(t) && t.arity() == 2 && PlString(t.name()) == "=")
-    {
-      r.push_back(Named(t[(size_t) 1].name()) = pl2r(t[(size_t) 2])) ;
-      continue ;
-    }
-    
-    // No name
-    r.push_back(pl2r(t)) ;
+    return (double) pl ;
+  }
+
+  catch(PlException& ex)
+  { 
+    warning("cannot convert %s to float: %s", (char*) pl, (char*) ex) ;
+    PL_clear_exception() ;
+    return NA_REAL ;
+  }
+}
+
+// Convert scalar real to DoubleVector of length 1
+DoubleVector pl2r_real(PlTerm pl)
+{
+  return DoubleVector::create(pl2r_double(pl)) ;
+}
+
+// Convert vector of reals (e.g., #(1.0, 2.0, na)) to DoubleVector
+DoubleVector pl2r_realvec(PlTerm pl)
+{
+  DoubleVector r(pl.arity()) ;
+  for(size_t i=0; i<pl.arity(); i++)
+    r(i) = pl2r_double(pl.operator[](i+1)) ;
+
+  return r ;
+}
+
+// See above for pl2r_double
+long pl2r_int(PlTerm pl)
+{
+  if(PL_is_atom(pl) && pl == "na")
+    return NA_INTEGER ;
+
+  try 
+  {
+    return (long) pl ;
   }
   
+  catch(PlException& ex)
+  { 
+    warning("Cannot convert %s to integer: %s", (char*) pl, (char*) ex) ;
+    PL_clear_exception() ;
+    return NA_INTEGER ;
+  }
+}
+
+IntegerVector pl2r_integer(PlTerm pl)
+{
+  return IntegerVector::create(pl2r_int(pl)) ;
+}
+
+IntegerVector pl2r_intvec(PlTerm pl)
+{
+  IntegerVector r(pl.arity()) ;
+  for(size_t i=0; i<pl.arity(); i++)
+    r(i) = pl2r_int(pl.operator[](i+1)) ;
+
+  return r ;
+}
+
+// See above for pl2r_double
+String pl2r_string(PlTerm pl)
+{
+  if(PL_is_atom(pl) && pl == "na")
+    return NA_STRING ;
+  
+  return (char*) pl ;
+}
+
+CharacterVector pl2r_char(PlTerm pl)
+{
+  return CharacterVector::create(pl2r_string(pl)) ;
+}
+
+CharacterVector pl2r_charvec(PlTerm pl)
+{
+  CharacterVector r(pl.arity()) ;
+  for(size_t i=0; i<pl.arity(); i++)
+    r(i) = pl2r_string(pl.operator[](i+1)) ;
+
+  return r ;
+}
+
+// Convert prolog atom to R symbol (handle na, true, false)
+RObject pl2r_symbol(PlTerm pl)
+{
+  if(pl == "na")
+    return LogicalVector::create(NA_LOGICAL) ;
+  
+  if(pl == "true")
+    return LogicalVector::create(1) ;
+  
+  if(pl == "false")
+    return LogicalVector::create(0) ;
+  
+  return as<RObject>(Symbol((char*) pl)) ;
+}
+
+LogicalVector pl2r_boolvec(PlTerm pl)
+{
+  LogicalVector r(pl.arity()) ;
+  for(size_t i=0; i<pl.arity(); i++)
+  {
+    PlTerm t = pl.operator[](i+1) ;
+    if(PL_is_atom(t))
+    {
+      if(t == "na")
+      {
+        r(i) = NA_LOGICAL ;
+        continue ;
+      }
+      
+      if(t == "true")
+      {
+        r(i) = 1 ;
+        continue ;
+      }
+      
+      if(t == "false")
+      {
+        r(i) = 0 ;
+        continue ;
+      }
+    }
+    
+    warning("r2pl_logical: invalid item %s, returning NA", (char*) t) ;
+    r(i) = NA_LOGICAL ;
+  }
+
+  return r ;
+}
+
+// Translate prolog variables to R expressions.
+RObject pl2r_variable(PlTerm pl, CharacterVector& names, PlTerm& vars)
+{
+  // names and vars is a list of all the variables from the R query,
+  // a typical member of names is something like X, a member of vars 
+  // is something like _1545.
+  //
+  // Search for the variable (e.g., _1545) in names and return its R name as an
+  // expression (say, X).
+  PlTail tail(vars) ;
+  PlTerm v ;
+  for(int i=0 ; i<names.length() ; i++)
+  {
+    tail.next(v) ;
+
+    if(!strcmp(v, pl))
+      return ExpressionVector::create(Symbol(names(i))) ;
+  }
+  
+  // If the variable is not found, it's a new one created by Prolog, e.g., in
+  // queries like member(1, Y), Y is unified with [1 | _NewVar ]. This variable
+  // cannot be translated to a human-readable name, so it is returned as _1545.
+  return ExpressionVector::create(Symbol((char*) pl)) ;
+}
+
+// Translate prolog compound to R call
+//
+// This function takes care of special compound names (#, %, $, !) for vector
+// objects in R, as well as "named" function arguments like "mean=100", in
+// rnorm(10, mean=100, sd=15).
+RObject pl2r_compound(PlTerm pl, CharacterVector& names, PlTerm& vars, List options)
+{
+  // This function does not (yet) work for cyclic terms
+  if(!PL_is_acyclic(pl))
+    stop("pl2r: Cannot convert cyclic term %s", (char*) pl) ;
+
+  // Convert #(1.0, 2.0, 3.0) to DoubleVectors (# given by options("realvec"))
+  if(!strcmp(pl.name(), options("realvec")))
+    return pl2r_realvec(pl) ;
+
+  // Convert %(1.0, 2.0, 3.0) to IntegerVectors
+  if(!strcmp(pl.name(), options("intvec")))
+    return pl2r_intvec(pl) ;
+
+  // Convert $(1.0, 2.0, 3.0) to CharacterVectors
+  if(!strcmp(pl.name(), options("charvec")))
+    return pl2r_charvec(pl) ;
+
+  // Convert !(1.0, 2.0, 3.0) to LogicalVectors
+  if(!strcmp(pl.name(), options("boolvec")))
+    return pl2r_boolvec(pl) ;
+
+  // Other compounds
+  Language r(pl.name()) ;
+  for(unsigned int i=1 ; i<=pl.arity() ; i++)
+  {
+    PlTerm arg = pl[i] ;
+
+    // Compounds like mean=100 are translated to named function arguments
+    if(PL_is_compound(arg) && !strcmp(arg.name(), "=") && arg.arity() == 2)
+    {
+      PlTerm a1 = arg.operator[](1) ;
+      PlTerm a2 = arg.operator[](2) ;
+      if(PL_is_atom(a1))
+      {
+        r.push_back(Named(a1.name()) = pl2r(a2, names, vars, options)) ;
+        continue ;
+      }
+    }
+
+    // argument has no name
+    r.push_back(pl2r(arg, names, vars, options)) ;
+  }
+
   return as<RObject>(r) ;
 }
 
-RObject pl2r(PlTerm arg)
+// Translate prolog list to R list
+//
+// This code allows for lists like [1, 2 | Tail] with variable tail. These 
+// cannot be processed by PlTail, therefore, the code is a bit more 
+// complicated, also because it can handle named arguments.
+//
+// Examples:
+// [1, 2, 3] -> list(1, 2, 3)
+// [1, 2 | X] -> `[|]`(1, `[|]`(2, expression(X)))
+// [a-1, b-2, c-3] -> list(a=1, b=2, c=3)
+//
+RObject pl2r_list(PlTerm pl, CharacterVector& names, PlTerm& vars, List options)
 {
-  if(PL_term_type(arg) == PL_NIL)
-    return pl2r_null() ;
-
-  if(PL_is_integer(arg))
-    return pl2r_integer(arg) ;
+  PlTerm head = pl.operator[](1) ;
   
-  if(PL_is_float(arg))
-    return pl2r_real(arg) ;
-  
-  if(PL_is_string(arg))
-    return pl2r_char(arg) ;
-  
-  if(PL_is_atom(arg))
-    return pl2r_symbol(arg) ;
-  
-  if(PL_is_list(arg))
-    return pl2r_list(arg) ;
-  
-  if(PL_is_compound(arg))
-    return pl2r_compound(arg) ;
-
-  throw PlException(PlTypeError("NULL, Integer, Float, String, Atom, List, Compound", arg)) ;
-  return pl2r_null() ;
-}
-
-PlTerm r2pl(RObject arg) ;
-
-PlTerm r2pl_real(NumericVector arg)
-{
-  PlTermv r(arg.size()) ;
-  for(long i=0 ; i<arg.size() ; i++)
-    r[i] = arg(i) ;
-  
-  return PlCompound("#", r) ;
-}
-
-PlTerm r2pl_na()
-{
-  return PlTerm("NA") ;
-}
-
-PlTerm r2pl_logical(LogicalVector arg)
-{
-  PlTermv r(arg.size()) ;
-  for(long i=0 ; i<arg.size() ; i++)
-    switch(arg(i))
+  // if the tail is a list or empty, return a normal list
+  RObject tail = pl2r(pl.operator[](2), names, vars, options) ;
+  if(TYPEOF(tail) == VECSXP || TYPEOF(tail) == NILSXP)
+  {
+    List r = as<List>(tail) ;
+    
+    // convert prolog pair a-X to named list element
+    if(PL_is_compound(head) && !strcmp(head.name(), "-") && head.arity() == 2)
     {
-      case 0:
-        r[i] = PlAtom("FALSE") ;
-        break ;
-      
-      case 1:    
-        r[i] = PlAtom("TRUE") ;
-        break ;
-
-      default:
-        r[i] = r2pl_na() ;
+      PlTerm a1 = head.operator[](1) ;
+      PlTerm a2 = head.operator[](2) ;
+      if(PL_is_atom(a1))
+      {
+        r.push_front(pl2r(a2, names, vars, options), a1.name()) ;
+        return r ;
+      }
     }
+    
+    // element has no name
+    r.push_front(pl2r(head, names, vars, options)) ; 
+    return r ;
+  }
+    
+  // if the tail is something else, return [|](head, tail)
+  Language r(pl.name()) ;
   
-  return PlCompound("#", r) ;
+  // convert prolog pair a-X to named list element
+  if(PL_is_compound(head) && !strcmp(head.name(), "-") && head.arity() == 2)
+  {
+    PlTerm a1 = head.operator[](1) ;
+    PlTerm a2 = head.operator[](2) ;
+    if(PL_is_atom(a1))
+    {
+      r.push_back(Named(a1.name()) = pl2r(a2, names, vars, options)) ;
+      r.push_back(tail) ;
+      return as<RObject>(r) ;
+    }
+  }
+
+  // element has no name
+  r.push_back(pl2r(head, names, vars, options)) ; 
+  r.push_back(tail) ;
+  return as<RObject>(r) ;
 }
 
-PlTerm r2pl_integer(IntegerVector arg)
+RObject pl2r(PlTerm pl, CharacterVector& names, PlTerm& vars, List options)
 {
-  PlTermv r(arg.size()) ;
-  for(long i=0 ; i<arg.size() ; i++)
-    r[i] = (long) arg(i) ;
+  if(PL_term_type(pl) == PL_NIL)
+    return pl2r_null() ;
   
-  return PlCompound("#", r) ;
+  if(PL_is_integer(pl))
+    return pl2r_integer(pl) ;
+  
+  if(PL_is_float(pl))
+    return pl2r_real(pl) ;
+  
+  if(PL_is_string(pl))
+    return pl2r_char(pl) ;
+  
+  if(PL_is_atom(pl))
+    return pl2r_symbol(pl) ;
+  
+  if(PL_is_list(pl))
+    return pl2r_list(pl, names, vars, options) ;
+  
+  if(PL_is_compound(pl))
+    return pl2r_compound(pl, names, vars, options) ;
+  
+  if(PL_is_variable(pl))
+    return pl2r_variable(pl, names, vars) ;
+  
+  stop("pl2r: Cannot convert %s", (char*) pl) ;
 }
 
-PlTerm r2pl_string(CharacterVector arg)
-{
-  PlTermv r(arg.size()) ;
-  for(long i=0 ; i<arg.size() ; i++)
-    r[i] = PlString(arg(i)) ;
-  
-  return PlCompound("#", r) ;
-}
-
+// Translate R expression to prolog
+//
+// This returns an empty list
 PlTerm r2pl_null()
 {
-  PlTerm r ;
-  PlTail(r).close() ;
-  return r ;
+  PlTerm pl ;
+  PlTail(pl).close() ;
+  return pl ;
 }
 
-PlTerm r2pl_atom(Symbol arg)
+// Prolog representation of R's NA.
+PlTerm r2pl_na()
 {
-  if(arg == "NA")
-    return r2pl_na() ;
+  return PlAtom("na") ;
+}
 
-  if(arg == "NULL")
+// Translate to (scalar) real or compounds like #(1.0, 2.0, 3.0)
+PlTerm r2pl_real(NumericVector r, List options)
+{
+  if(r.length() == 0)
     return r2pl_null() ;
 
-  return PlAtom(arg.c_str()) ;
+  LogicalVector nan = is_nan(r) ;
+  LogicalVector na = is_na(r) ;
+  
+  // Translate to scalar
+  if(as<LogicalVector>(options("scalar"))(0) && r.length() == 1)
+  {
+    if(na[0] && !nan[0])
+      return r2pl_na() ;
+    
+    return PlTerm((double) r[0]) ;
+  }
+
+  // Translate to vector #(1.0, 2.0, 3.0)
+  size_t len = (size_t) r.length() ;
+  PlTermv args(len) ;
+  for(size_t i=0 ; i<len ; i++)
+  {
+    if(na[i] && !nan[i])
+      args[i] = r2pl_na() ;
+    else
+      args[i] = PlTerm((double) r[i]) ;
+  }
+  
+  return PlCompound((const char*) options("realvec"), args) ;
 }
 
-PlTerm r2pl_compound(Language arg)
+// Translate to (scalar) boolean or compounds like !(true, false, na)
+PlTerm r2pl_logical(LogicalVector r, List options)
 {
-  PlTermv args(arg.size() - 1) ;
-  
-  R_xlen_t i=0 ;
-  for(SEXP cons=CDR(arg) ; cons != R_NilValue ; cons = CDR(cons))
-    args[i++] = r2pl(CAR(cons)) ;
-
-  return PlCompound(as<Symbol>(CAR(arg)).c_str(), args) ;
-}
-
-PlTerm r2pl_list(List arg)
-{
-  PlTerm r ;
-  PlTail l(r);
-  for(R_xlen_t i=0; i<arg.size() ; i++)
-    l.append(r2pl(arg(i))) ;
-  l.close() ;
-  
-  return r ;
-}
-
-PlTerm r2pl(RObject arg)
-{
-  if(is<Language>(arg))
-    return r2pl_compound(as<Language>(arg)) ;
-
-  if(is<NumericVector>(arg))
-    return r2pl_real(as<NumericVector>(arg)) ;
-  
-  if(is<LogicalVector>(arg))
-    return r2pl_logical(as<LogicalVector>(arg)) ;
-  
-  if(is<IntegerVector>(arg))
-    return r2pl_integer(as<IntegerVector>(arg)) ;
-  
-  if(is<Symbol>(arg))
-    return r2pl_atom(as<Symbol>(arg)) ;
-
-  if(is<CharacterVector>(arg))
-    return r2pl_string(as<CharacterVector>(arg)) ;
-
-  if(is<List>(arg))
-    return r2pl_list(as<List>(arg)) ;
-  
-  if(arg.sexp_type() == VECSXP)
-    return r2pl_list(as<List>(arg)) ;
-  
-  if(arg.sexp_type() == NILSXP)
+  if(r.length() == 0)
     return r2pl_null() ;
   
-  String s = Language("class", arg).eval() ;
-  throw PlException(PlTypeError("Language, Vector, Symbol, List, NULL", PlTerm(s.get_cstring()))) ;
+  LogicalVector na = is_na(r) ;
+  
+  // scalar boolean
+  if(as<LogicalVector>(options("scalar"))(0) && r.length() == 1)
+  {
+    if(na[0])
+      return r2pl_na() ;
+    
+    return PlTerm(r[0] ? "true" : "false") ;
+  }
+
+  // LogicalVector !(true, false, na)
+  size_t len = (size_t) r.length() ;
+  PlTermv args(len) ;
+  for(size_t i=0 ; i<len ; i++)
+  {
+    if(na[i])
+      args[i] = r2pl_na() ;
+    else
+      args[i] = PlTerm(r[i] ? "true" : "false") ;
+  }
+
+  return PlCompound((const char*) options("boolvec"), args) ;
+}
+
+// Translate to (scalar) integer or compounds like %(1, 2, 3)
+PlTerm r2pl_integer(IntegerVector r, List options)
+{
+  if(r.length() == 0)
+    return r2pl_null() ;
+  
+  LogicalVector na = is_na(r) ;
+  
+  // scalar integer
+  if(as<LogicalVector>(options("scalar"))(0) && r.length() == 1)
+  {
+    if(na[0])
+      return r2pl_na() ;
+    
+    return PlTerm((long) r(0)) ;
+  }
+  
+  // IntegerVector %(1, 2, 3)
+  size_t len = (size_t) r.length() ;
+  PlTermv args(len) ;
+  for(size_t i=0 ; i<len ; i++)
+  {
+    if(na[i])
+      args[i] = r2pl_na() ;
+    else
+      args[i] = PlTerm((long) r[i]) ;
+  }
+  
+  return PlCompound((const char*) options("intvec"), args) ;
+}
+
+// Translate R expression to prolog variable
+//
+// This function keeps a record of the names of the variables in 
+// use (e.g., _1545) as well as the corresponding R names (e.g., X). If a new
+// variable is encountered, its name is looked up in the list of known 
+// variables, and it is unified with it if the name is found. Otherwise, a new
+// variable is created.
+//
+// options("atomize") is true, no variable is created, but an atom is created 
+// with the variable name from R. This is only used for pretty printing.
+PlTerm r2pl_var(ExpressionVector r, CharacterVector& names, PlTerm& vars, List options)
+{
+  // Variable name in R
+  Symbol n = as<Symbol>(r[0]) ;
+  
+  // If the variable should be "atomized" for pretty printing
+  if(as<LogicalVector>(options("atomize"))(0))
+    return PlAtom(n.c_str()) ;
+
+  // Do not map the anonymous variable to a known variable name
+  if(n == "_")
+    return PlTerm() ;
+
+  // Unify with existing variable of the same name
+  PlTail tail(vars) ;
+  PlTerm v ;
+  for(R_xlen_t i=0 ; i<names.length() ; i++)
+  {
+    tail.next(v) ;
+    if(n == names(i))
+      return v ;
+  }
+
+  // If no such variable exists, create a new one and remember the name
+  names.push_back(n.c_str()) ;
+  PlTerm pl ;
+  tail.append(pl) ;
+  return pl ;
+}
+
+// Translate R symbol to prolog atom
+PlTerm r2pl_atom(Symbol r)
+{
+  return PlAtom(r.c_str()) ;
+}
+
+// Translate CharacterVector to (scalar) string or things like $("a", "b", "c")
+PlTerm r2pl_string(CharacterVector r, List options)
+{
+  if(r.length() == 0)
+    return r2pl_null() ;
+  
+  LogicalVector na = is_na(r) ;
+  
+  // scalar string
+  if(as<LogicalVector>(options["scalar"])(0) && r.length() == 1)
+  {
+    if(na[0])
+      return r2pl_na() ;
+    
+    return PlString(r(0)) ;
+  }
+
+  // compound like $("a", "b", "c")
+  size_t len = (size_t) r.length() ;
+  PlTermv args(len) ;
+  for(size_t i=0 ; i<len ; i++)
+  {
+    if(na[i])
+      args[i] = r2pl_na() ;
+    else
+      args[i] = PlString(r(i)) ;
+  }
+
+  return PlCompound((const char*) options("charvec"), args) ;
+}
+
+// Translate R call to prolog compound, taking into account the names of the
+// arguments, e.g., rexp(50, rate=1) -> rexp(50, =(rate, 1))
+PlTerm r2pl_compound(Language r, CharacterVector& names, PlTerm& vars, List options)
+{
+  // For convenience, collect arguments in a list
+  List l = as<List>(CDR(r)) ;
+
+  // Extract names of arguments
+  CharacterVector n ;
+  // if there are no names, l.names() returns NULL and n has length 0
+  if(TYPEOF(l.names()) == STRSXP)
+    n = l.names() ;
+  
+  size_t len = (size_t) l.size() ;
+  PlTermv pl(len) ;
+  for(size_t i=0 ; i<len ; i++)
+  {
+    PlTerm arg = r2pl(l(i), names, vars, options) ;
+    
+    // Convert named arguments to prolog compounds a=X
+    if(n.length() && n(i) != "")
+      pl[i] = PlCompound("=", PlTermv(PlAtom(n(i)), arg)) ;
+    else
+      pl[i] = arg ; // no name
+  }
+
+  return PlCompound(as<Symbol>(CAR(r)).c_str(), pl) ;
+}
+
+// Translate R list to prolog list, taking into account the names of the
+// elements, e.g., list(a=1, b=2) -> [a-1, b-2]. This may change, since the
+// minus sign is a bit specific to prolog, and the conversion in the reverse
+// direction may be ambiguous.
+//
+PlTerm r2pl_list(List r, CharacterVector& names, PlTerm& vars, List options)
+{
+  // Names of list elements (empty vector if r.names() == NULL)  
+  CharacterVector n ;
+  if(TYPEOF(r.names()) == STRSXP)
+    n = as<CharacterVector>(r.names()) ;
+  
+  PlTerm pl ;
+  PlTail tail(pl) ;
+  for(R_xlen_t i=0; i<r.size() ; i++)
+  {
+    PlTerm arg = r2pl(r(i), names, vars, options) ;
+    
+    // Convert named argument to prolog pair a-X.
+    if(n.length() && n(i) != "")
+      tail.append(PlCompound("-", PlTermv(PlAtom(n(i)), arg))) ;
+    else
+      tail.append(arg) ; // no name
+  }
+  
+  tail.close() ;
+  return pl ;
+}
+
+PlTerm r2pl(SEXP r, CharacterVector& names, PlTerm& vars, List options)
+{
+  if(TYPEOF(r) == LANGSXP)
+    return r2pl_compound(r, names, vars, options) ;
+
+  if(TYPEOF(r) == REALSXP)
+    return r2pl_real(r, options) ;
+  
+  if(TYPEOF(r) == LGLSXP)
+    return r2pl_logical(r, options) ;
+  
+  if(TYPEOF(r) == INTSXP)
+    return r2pl_integer(r, options) ;
+  
+  if(TYPEOF(r) == EXPRSXP)
+    return r2pl_var(r, names, vars, options) ;
+
+  if(TYPEOF(r) == SYMSXP)
+    return r2pl_atom(r) ;
+
+  if(TYPEOF(r) == STRSXP)
+    return r2pl_string(r, options) ;
+
+  if(TYPEOF(r) == VECSXP)
+    return r2pl_list(r, names, vars, options) ;
+  
+  if(TYPEOF(r) == NILSXP)
+    return r2pl_null() ;
+  
   return r2pl_na() ;
 }
 
