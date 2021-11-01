@@ -241,7 +241,7 @@ RObject pl2r_compound(PlTerm pl)
   
       if(PL_is_atom(a1))
       {
-        r.push_back(Named(a1.name()) = pl2r(a2) ;
+        r.push_back(Named(a1.name()) = pl2r(a2)) ;
         continue ;
       }
     }
