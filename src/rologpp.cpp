@@ -142,13 +142,22 @@ RObject pl2r_symbol(PlTerm pl)
 {
   if(pl == "na")
     return LogicalVector::create(NA_LOGICAL) ;
+
+  if(pl == "NA")
+    return LogicalVector::create(NA_LOGICAL) ;
   
   if(pl == "true")
     return LogicalVector::create(1) ;
   
+  if(pl == "TRUE")
+    return LogicalVector::create(1) ;
+  
   if(pl == "false")
     return LogicalVector::create(0) ;
-  
+
+  if(pl == "FALSE")
+    return LogicalVector::create(0) ;
+
   return as<RObject>(Symbol((char*) pl)) ;
 }
 
