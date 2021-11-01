@@ -233,11 +233,20 @@ RObject pl2r_compound(PlTerm pl)
     {
       PlTerm a1 = arg.operator[](1) ;
       PlTerm a2 = arg.operator[](2) ;
+      
+      if(PL_is_string(a1))
+      {
+        r.push_back(Named((char*) a1) = pl2r(a2)) ;
+        continue ;
+      }
+  
       if(PL_is_atom(a1))
       {
         r.push_back(Named(a1.name()) = pl2r(a2)) ;
         continue ;
       }
+
+      throw PlException(a1) ;
     }
 
     // argument has no name
