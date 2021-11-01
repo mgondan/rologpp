@@ -181,26 +181,26 @@ RObject pl2r_variable(PlTerm pl, CharacterVector& names, PlTerm& vars)
 // This function takes care of special compound names (#, %, $, !) for vector
 // objects in R, as well as "named" function arguments like "mean=100", in
 // rnorm(10, mean=100, sd=15).
-RObject pl2r_compound(PlTerm pl, CharacterVector& names, PlTerm& vars, List options)
+RObject pl2r_compound(PlTerm pl)
 {
   // This function does not (yet) work for cyclic terms
   if(!PL_is_acyclic(pl))
     stop("pl2r: Cannot convert cyclic term %s", (char*) pl) ;
 
   // Convert #(1.0, 2.0, 3.0) to DoubleVectors (# given by options("realvec"))
-  if(!strcmp(pl.name(), options("realvec")))
+  if(!strcmp(pl.name(), "#"))
     return pl2r_realvec(pl) ;
 
   // Convert %(1.0, 2.0, 3.0) to IntegerVectors
-  if(!strcmp(pl.name(), options("intvec")))
+  if(!strcmp(pl.name(), "%"))
     return pl2r_intvec(pl) ;
 
   // Convert $(1.0, 2.0, 3.0) to CharacterVectors
-  if(!strcmp(pl.name(), options("charvec")))
+  if(!strcmp(pl.name(), "$"))
     return pl2r_charvec(pl) ;
 
   // Convert !(1.0, 2.0, 3.0) to LogicalVectors
-  if(!strcmp(pl.name(), options("boolvec")))
+  if(!strcmp(pl.name(), "!"))
     return pl2r_boolvec(pl) ;
 
   // Other compounds
@@ -216,13 +216,13 @@ RObject pl2r_compound(PlTerm pl, CharacterVector& names, PlTerm& vars, List opti
       PlTerm a2 = arg.operator[](2) ;
       if(PL_is_atom(a1))
       {
-        r.push_back(Named(a1.name()) = pl2r(a2, names, vars, options)) ;
+        r.push_back(Named(a1.name()) = pl2r(a2)) ;
         continue ;
       }
     }
 
     // argument has no name
-    r.push_back(pl2r(arg, names, vars, options)) ;
+    r.push_back(pl2r(arg)) ;
   }
 
   return as<RObject>(r) ;
@@ -239,12 +239,12 @@ RObject pl2r_compound(PlTerm pl, CharacterVector& names, PlTerm& vars, List opti
 // [1, 2 | X] -> `[|]`(1, `[|]`(2, expression(X)))
 // [a-1, b-2, c-3] -> list(a=1, b=2, c=3)
 //
-RObject pl2r_list(PlTerm pl, CharacterVector& names, PlTerm& vars, List options)
+RObject pl2r_list(PlTerm pl)
 {
   PlTerm head = pl.operator[](1) ;
   
   // if the tail is a list or empty, return a normal list
-  RObject tail = pl2r(pl.operator[](2), names, vars, options) ;
+  RObject tail = pl2r(pl.operator[](2)) ;
   if(TYPEOF(tail) == VECSXP || TYPEOF(tail) == NILSXP)
   {
     List r = as<List>(tail) ;
@@ -256,13 +256,13 @@ RObject pl2r_list(PlTerm pl, CharacterVector& names, PlTerm& vars, List options)
       PlTerm a2 = head.operator[](2) ;
       if(PL_is_atom(a1))
       {
-        r.push_front(pl2r(a2, names, vars, options), a1.name()) ;
+        r.push_front(pl2r(a2), a1.name()) ;
         return r ;
       }
     }
     
     // element has no name
-    r.push_front(pl2r(head, names, vars, options)) ; 
+    r.push_front(pl2r(head)) ; 
     return r ;
   }
     
@@ -276,14 +276,14 @@ RObject pl2r_list(PlTerm pl, CharacterVector& names, PlTerm& vars, List options)
     PlTerm a2 = head.operator[](2) ;
     if(PL_is_atom(a1))
     {
-      r.push_back(Named(a1.name()) = pl2r(a2, names, vars, options)) ;
+      r.push_back(Named(a1.name()) = pl2r(a2)) ;
       r.push_back(tail) ;
       return as<RObject>(r) ;
     }
   }
 
   // element has no name
-  r.push_back(pl2r(head, names, vars, options)) ; 
+  r.push_back(pl2r(head)) ; 
   r.push_back(tail) ;
   return as<RObject>(r) ;
 }
