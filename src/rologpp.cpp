@@ -236,17 +236,15 @@ RObject pl2r_compound(PlTerm pl)
       
       if(PL_is_string(a1))
       {
-        r.push_back(Named((char*) a1) = pl2r(a2)) ;
+        r.push_back(pl2r(a2), (char*) a1) ;
         continue ;
       }
   
       if(PL_is_atom(a1))
       {
-        r.push_back(Named(a1.name()) = pl2r(a2)) ;
+        r.push_back(pl2r(a2), a1.name()) ;
         continue ;
       }
-
-      throw PlException(a1) ;
     }
 
     // argument has no name
