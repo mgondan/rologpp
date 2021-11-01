@@ -151,31 +151,6 @@ LogicalVector pl2r_boolvec(PlTerm pl)
   return r ;
 }
 
-// Translate prolog variables to R expressions.
-RObject pl2r_variable(PlTerm pl, CharacterVector& names, PlTerm& vars)
-{
-  // names and vars is a list of all the variables from the R query,
-  // a typical member of names is something like X, a member of vars 
-  // is something like _1545.
-  //
-  // Search for the variable (e.g., _1545) in names and return its R name as an
-  // expression (say, X).
-  PlTail tail(vars) ;
-  PlTerm v ;
-  for(int i=0 ; i<names.length() ; i++)
-  {
-    tail.next(v) ;
-
-    if(!strcmp(v, pl))
-      return ExpressionVector::create(Symbol(names(i))) ;
-  }
-  
-  // If the variable is not found, it's a new one created by Prolog, e.g., in
-  // queries like member(1, Y), Y is unified with [1 | _NewVar ]. This variable
-  // cannot be translated to a human-readable name, so it is returned as _1545.
-  return ExpressionVector::create(Symbol((char*) pl)) ;
-}
-
 // Translate prolog compound to R call
 //
 // This function takes care of special compound names (#, %, $, !) for vector
@@ -311,9 +286,6 @@ RObject pl2r(PlTerm pl)
   if(PL_is_compound(pl))
     return pl2r_compound(pl) ;
   
-  if(PL_is_variable(pl))
-    return pl2r_variable(pl) ;
-  
   stop("pl2r: Cannot convert %s", (char*) pl) ;
 }
 
@@ -427,42 +399,6 @@ PlTerm r2pl_integer(IntegerVector r)
   return PlCompound("%", args) ;
 }
 
-// Translate R expression to prolog variable
-//
-// This function keeps a record of the names of the variables in 
-// use (e.g., _1545) as well as the corresponding R names (e.g., X). If a new
-// variable is encountered, its name is looked up in the list of known 
-// variables, and it is unified with it if the name is found. Otherwise, a new
-// variable is created.
-//
-// options("atomize") is true, no variable is created, but an atom is created 
-// with the variable name from R. This is only used for pretty printing.
-PlTerm r2pl_var(ExpressionVector r)
-{
-  // Variable name in R
-  Symbol n = as<Symbol>(r[0]) ;
-  
-  // Do not map the anonymous variable to a known variable name
-  if(n == "_")
-    return PlTerm() ;
-
-  // Unify with existing variable of the same name
-  PlTail tail(vars) ;
-  PlTerm v ;
-  for(R_xlen_t i=0 ; i<names.length() ; i++)
-  {
-    tail.next(v) ;
-    if(n == names(i))
-      return v ;
-  }
-
-  // If no such variable exists, create a new one and remember the name
-  names.push_back(n.c_str()) ;
-  PlTerm pl ;
-  tail.append(pl) ;
-  return pl ;
-}
-
 // Translate R symbol to prolog atom
 PlTerm r2pl_atom(Symbol r)
 {
@@ -572,9 +508,6 @@ PlTerm r2pl(SEXP r)
   if(TYPEOF(r) == INTSXP)
     return r2pl_integer(r) ;
   
-  if(TYPEOF(r) == EXPRSXP)
-    return r2pl_var(r) ;
-
   if(TYPEOF(r) == SYMSXP)
     return r2pl_atom(r) ;
 
