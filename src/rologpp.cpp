@@ -4,6 +4,41 @@
 using namespace Rcpp;
 #include "RInside.h"
 
+// Translate prolog expression to R
+//
+// [] -> NULL
+// real -> NumericVector
+// #(r1, r2, r3) -> NumericVector (# is a default, see option realvec)
+// integer -> IntegerVector
+// %(i1, i2, i3) -> IntegerVector (see option intvec for the name)
+// string -> CharacterVector
+// $(s1, s2, s3) CharacterVector
+// na (atom) -> NA
+// true, false (atoms) -> LogicalVector
+// !(l1, l2, l3) -> LogicalVector (see option boolvec)
+// other atoms -> symbol/name
+// compound -> call (aka. "language")
+// list -> list
+//
+RObject pl2r(PlTerm pl) ;
+
+// Translate R expression to prolog
+//
+// NULL -> []
+// numeric vector of length 1 -> real (unless rolog.scalar == FALSE)
+// numeric vector of length > 1 -> e.g., #(1.0, 2.0, 3.0) (see rolog.realvec)
+// integer vector of length 1 -> integer
+// integer vector of length > 1 -> %(1, 2, 3)
+// character vector of length 1 -> string
+// character vector of length > 1 -> $("a", "b", "c")
+// logical vector of length 1 -> the atoms true, false or na
+// logical vector of length > 1 -> $(true, false, na)
+// symbol/name -> atom
+// call/language -> compound
+// list -> list
+//
+PlTerm r2pl(SEXP r) ;
+
 // Prolog -> R
 RObject pl2r_null()
 {
