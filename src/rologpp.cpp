@@ -12,7 +12,7 @@ using namespace Rcpp;
 // integer -> IntegerVector
 // %(i1, i2, i3) -> IntegerVector (see option intvec for the name)
 // string -> CharacterVector
-// $(s1, s2, s3) CharacterVector
+// $$(s1, s2, s3) CharacterVector
 // na (atom) -> NA
 // true, false (atoms) -> LogicalVector
 // !(l1, l2, l3) -> LogicalVector (see option boolvec)
@@ -30,9 +30,9 @@ RObject pl2r(PlTerm pl) ;
 // integer vector of length 1 -> integer
 // integer vector of length > 1 -> %(1, 2, 3)
 // character vector of length 1 -> string
-// character vector of length > 1 -> $("a", "b", "c")
+// character vector of length > 1 -> $$("a", "b", "c")
 // logical vector of length 1 -> the atoms true, false or na
-// logical vector of length > 1 -> $(true, false, na)
+// logical vector of length > 1 -> !(true, false, na)
 // symbol/name -> atom
 // call/language -> compound
 // list -> list
@@ -197,7 +197,7 @@ LogicalVector pl2r_boolvec(PlTerm pl)
 
 // Translate prolog compound to R call
 //
-// This function takes care of special compound names (#, %, $, !) for vector
+// This function takes care of special compound names (#, %, &, !) for vector
 // objects in R, as well as "named" function arguments like "mean=100", in
 // rnorm(10, mean=100, sd=15).
 RObject pl2r_compound(PlTerm pl)
@@ -214,8 +214,8 @@ RObject pl2r_compound(PlTerm pl)
   if(!strcmp(pl.name(), "%"))
     return pl2r_intvec(pl) ;
 
-  // Convert $(1.0, 2.0, 3.0) to CharacterVectors
-  if(!strcmp(pl.name(), "$"))
+  // Convert $$(1.0, 2.0, 3.0) to CharacterVectors
+  if(!strcmp(pl.name(), "$$"))
     return pl2r_charvec(pl) ;
 
   // Convert !(1.0, 2.0, 3.0) to LogicalVectors
@@ -455,7 +455,7 @@ PlTerm r2pl_atom(Symbol r)
   return PlAtom(r.c_str()) ;
 }
 
-// Translate CharacterVector to (scalar) string or things like $("a", "b", "c")
+// Translate CharacterVector to (scalar) string or things like $$("a", "b", "c")
 PlTerm r2pl_string(CharacterVector r)
 {
   if(r.length() == 0)
@@ -472,7 +472,7 @@ PlTerm r2pl_string(CharacterVector r)
     return PlString(r(0)) ;
   }
 
-  // compound like $("a", "b", "c")
+  // compound like $$("a", "b", "c")
   size_t len = (size_t) r.length() ;
   PlTermv args(len) ;
   for(size_t i=0 ; i<len ; i++)
@@ -483,7 +483,7 @@ PlTerm r2pl_string(CharacterVector r)
       args[i] = PlString(r(i)) ;
   }
 
-  return PlCompound("$", args) ;
+  return PlCompound("$$", args) ;
 }
 
 // Translate R call to prolog compound, taking into account the names of the
