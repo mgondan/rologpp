@@ -61,6 +61,6 @@ check::
 
 clean:
 	rm -f $(OBJ)
-	rm rologpp.$(SOEXT)
+	rm -f rologpp.$(SOEXT)
 
 distclean: clean
